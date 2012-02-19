@@ -66,6 +66,20 @@ function itemform(doctoedit) {
 
     $("#itemform").empty();
     $("#itemform").append(formhtml);
+
+    var form =  $("form#updateitem");
+    form.children("input.update").bind('click',
+          function(event) {
+              db.saveDoc(build_item_doc_from_form(null,form),
+                         { success: function() {
+                                        form.remove();
+                                        update_inventory();
+                                     }
+                   });
+        return false;
+    });
+
+
 }
 
 function build_item_doc_from_form(doc,form) {
@@ -89,18 +103,5 @@ $(document).ready(function() {
     $("a.add").live('click', function(event) {
         itemform();
     });
-
-    $("input.update").live('click', function(event) {
-        var form = $(event.target).parents("form#updateitem");
-        db.saveDoc(build_item_doc_from_form(null,form), 
-                   { success: function() {
-                                  $("form#updateitem").remove();
-                                  //form.remove;
-                                  update_inventory();
-                               }
-                   });
-        return false;
-    });
-
 
 });
