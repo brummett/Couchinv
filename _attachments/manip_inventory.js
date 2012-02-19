@@ -17,6 +17,17 @@ function update_inventory() {
                                   + '</span></div>'
                                 );
             }
+
+            // When the "Edit" link is clicked
+            $("a.edit").click(function(event) {
+                var target = $(event.target);
+                var docid = target.attr('id');
+                db.openDoc(docid, { success: function(doc) {
+                    itemform(doc);
+                }});
+               return false;
+            });
+
         }
     });
 }
@@ -70,7 +81,7 @@ function itemform(doctoedit) {
     var form =  $("form#updateitem");
     form.children("input.update").bind('click',
           function(event) {
-              db.saveDoc(build_item_doc_from_form(null,form),
+              db.saveDoc(build_item_doc_from_form(doctoedit,form),
                          { success: function() {
                                         form.remove();
                                         update_inventory();
