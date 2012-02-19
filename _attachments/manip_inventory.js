@@ -1,23 +1,22 @@
 db = $.couch.db("couchinv");
 function update_inventory() {
-    $("#items").empty();
+    $("#itemslist").empty();
 
     db.view("couchinv/items-byname", {
         success: function(data) {
-                     for (i in data.rows) {
-                         var itemid = data.rows[i].value._id;
-                         $("#items").append('<div id="' + itemid + '" class="itemrow"><span>'
-                                           + data.rows[i].value.name
-                                           + '</span><span>'
-                                           + data.rows[i].value.sku
-                                           + '</span><span>'
-                                           + data.rows[i].value.count
-                                           + '</span><span>'
-                                           + '<a href="#" id="' + itemid + '" class="edit">Edit</a>'
-                                           + '<a href="#" id="' + itemid + '" class="remove">Remove</a>'
-                                           + '</span></div>'
-                                         );
-                     }
+            $("#itemslist").append('<div class="itemheader"><span>Name</span><span>SKU</span><span>count</span></div>');
+            for (i in data.rows) {
+                var itemid = data.rows[i].value._id;
+                $("#itemslist").append('<div id="' + itemid + '" class="itemrow">'
+                                  + '<span>'        + data.rows[i].value.name
+                                  + '</span><span>' + data.rows[i].value.sku
+                                  + '</span><span>' + data.rows[i].value.count
+                                  + '</span><span>'
+                                  + '<a href="#" id="' + itemid + '" class="edit">Edit</a>  '
+                                  + '<a href="#" id="' + itemid + '" class="remove">Remove</a>'
+                                  + '</span></div>'
+                                );
+            }
         }
     });
 }
