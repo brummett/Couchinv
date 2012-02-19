@@ -61,8 +61,8 @@ function itemform(doctoedit) {
     formhtml = formhtml + 
         '</table>'
         + '<input type="submit" name="submit" class="update" value="'
-        + (doctoedit ? 'Update' : 'Add')
-        + '"/></form>';
+        + (doctoedit ? 'Update' : 'Add') + '"/>'
+        + '<input type="submit" name="submit" class="cancel" value="Cancel"/></form>';
 
     $("#itemform").empty();
     $("#itemform").append(formhtml);
@@ -79,6 +79,12 @@ function itemform(doctoedit) {
         return false;
     });
 
+    form.children('input.cancel').bind('click',
+        function(event) {
+            form.remove();
+            return false;
+        }
+    );
 
 }
 
