@@ -108,6 +108,7 @@ $(document).ready(function() {
 
     $("a.add").live('click', function(event) {
         itemform();
+        return false;
     });
 
 });
