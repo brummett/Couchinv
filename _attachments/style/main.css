@@ -13,6 +13,31 @@ h1 {
   float:right;
 }
 
+#navigation {
+  position:fixed;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  width: 8em;
+  background: #ddd;
+  border-right: 1px solid black;
+}
+
+#navigation div {
+    margin-bottom: 0.5em;
+}
+
+#navigation a.current_activity {
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+    border: 1px solid blue;
+}
+
+div#activity {
+    margin-left: 8em;  /* This needs to match the width of the #navigation */
+}
+
 #profile {
   border:4px solid #edd;
   background:#fee;
@@ -49,7 +74,7 @@ h1 {
 }
 
 form#updateitem {
-  float:left;
+  float:right;
 }
 
 #sidebar {

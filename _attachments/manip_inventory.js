@@ -1,4 +1,23 @@
-db = $.couch.db("couchinv");
+function build_item_activity() {
+    var activity = $("#activity");
+    activity.empty();
+
+    activity.append('<h1>Inventory Items</h1>'
+                    + '<div id="inventory">'
+                        + '<div id="add"><a href="#" class="add">Add Inventory Item</a></div>'
+                        + '<div id="itemslist"></div>'
+                        + '<div id="itemform"></div>'
+                    + '</div>');
+
+    $("a.add").bind('click', function(event) {
+        itemform();
+        return false;
+    });
+
+    update_inventory();
+}
+
+
 function update_inventory() {
     $("#itemslist").empty();
 
@@ -159,12 +178,3 @@ function build_item_doc_from_form(doc,form) {
 }
 
 
-$(document).ready(function() {
-    update_inventory();
-
-    $("a.add").live('click', function(event) {
-        itemform();
-        return false;
-    });
-
-});
