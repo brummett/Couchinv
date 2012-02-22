@@ -105,9 +105,9 @@ function itemform(doctoedit) {
             + '"/></td></tr>'
 
         + '<tr><td>Description</td>'
-        + '<td><input name="desc" type="text" id="desc" value="'
+        + '<td><textarea name="desc" rows="5" cols="40" id="desc">'
             + (doctoedit ? doctoedit.desc : '' )
-            + '"/></td></tr>'
+            + '</textarea></td></tr>'
 
         + '<tr><td>Count</td>'
         + '<td><input name="count" type="text" id="count" value="'
@@ -152,7 +152,7 @@ function build_item_doc_from_form(doc,form) {
     doc.sku     = form.find("input#sku").val();
     doc.barcode = form.find("input#barcode").val();
     doc.count   = form.find("input#count").val();
-    doc.desc    = form.find("input#desc").val();
+    doc.desc    = form.find("textarea#desc").val();
     doc.type    = 'item';
 
     return(doc);
