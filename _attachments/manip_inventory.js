@@ -119,6 +119,7 @@ function update_inventory_list(rows) {
                    + '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
                    + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
             var popup = popup_dialog(popup_html);
+            popup.addClass('warning');
 
             popup.children("input#Remove").click(function(event) {
                 db.removeDoc(doc, { success: function() {

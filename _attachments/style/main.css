@@ -152,6 +152,12 @@ div.avatar img {
   font-size: 13px;
 }
 
+.popup_dialog.warning {
+    border-color: black;
+    background: red;
+    padding: 3em;
+}
+
 .confirmPopup h1 {
   text-align: left;
   color: #6fa5fd;
