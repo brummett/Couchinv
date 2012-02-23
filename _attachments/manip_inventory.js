@@ -51,41 +51,21 @@ function update_inventory() {
                 var target =$(event.target);
                 var docid = target.attr('id');
                 db.openDoc(docid, { success: function(doc) {
-                    var background = $("#popup_background");
-
-                    var popup = $('<div class="confirmPopup"><H1>Confirm Remove</H1>Are you sure sure '
+                    var popup_html = '<H1>Confirm Remove</H1>Are you sure sure '
                            + 'you want to delete ' + doc.name + '<p></p>'
                            + '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
-                           + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>');
-                    $("body").append(popup);
-                    var windowWidth = document.documentElement.clientWidth;
-                    var windowHeight = document.documentElement.clientHeight;
-                    var popupHeight = popup.height();
-                    var popupWidth = popup.width();
-                    //centering
-                    popup.css({
-                        "position": "absolute",
-                        "top": windowHeight/2-popupHeight/2,
-                        "left": windowWidth/2-popupWidth/2
-                    });
-                    popup.fadeIn("fast");
-                    background.fadeIn("fast");
+                           + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
+                    var popup = popup_dialog(popup_html);
 
-                    var popup_cleanup = function() {
-                        background.fadeOut("fast");
-                        popup.fadeOut("fast");
-                        popup.remove();
-                    };
-
-                    $(".confirmPopup input#Remove").click(function(event) {
+                    popup.children("input#Remove").click(function(event) {
                         db.removeDoc(doc, { success: function() {
                             target.parents("div.itemrow").remove();
                         }});
-                        popup_cleanup();
+                        popup_cleanup(popup);
                         return false;
                     });
-                    $(".confirmPopup input#Cancel").click(function(event) {
-                        popup_cleanup();
+                    popup.children("input#Cancel").click(function(event) {
+                        popup_cleanup(popup);
                         return false;
                     });
                 }});

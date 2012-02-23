@@ -123,6 +123,8 @@ div.avatar img {
 #popup_background {
   display: none;
   position: fixed;
+  left: 0;
+  top: 0;
   height: 100%;
   width: 100%;
   background: #000000;
@@ -131,7 +133,7 @@ div.avatar img {
   z-index: 1;
 }
 
-.confirmPopup {
+.popup_dialog {
   display: none;
   position: fixed;
   background: #ffffff;
