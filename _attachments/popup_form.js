@@ -12,7 +12,7 @@ function popup_dialog(html) {
     //centering
     popup.css({
                "position": "absolute",
-               "top": windowHeight/2-popupHeight/2,
+               "top": (windowHeight-popupHeight)/3,
                "left": windowWidth/2-popupWidth/2
              });
     popup.fadeIn("fast");
