@@ -6,7 +6,6 @@ function build_item_activity() {
                     + '<div id="inventory">'
                         + '<div id="add"><a href="#" class="add">Add Inventory Item</a></div>'
                         + '<div id="itemslist"></div>'
-                        + '<div id="itemform"></div>'
                     + '</div>');
 
     $("a.add").bind('click', function(event) {
@@ -77,18 +76,17 @@ function update_inventory() {
 }
 
 function itemform(doctoedit) {
-    var formhtml;
-    formhtml = '<form name="updateitem" id="updateitem" action="">';
+    var formhtml = '<h1>' + (doctoedit ? 'Edit' : 'Add') + ' Item</h1>';
+    formhtml = formhtml + '<form name="updateitem" id="updateitem" action="">';
 
     if (doctoedit) {
         // editing an existing item
         formhtml = formhtml +
             '<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>';
     }
-    formhtml = formhtml + '<table>';
 
-    formhtml = formhtml +
-        '<tr><td>Name</td>' 
+    formhtml = formhtml + '<table>'
+        + '<tr><td>Name</td>'
         + '<td><input name="name" type="text" id="name" value="'
             + (doctoedit ? doctoedit.name : '')
             + '"/></td></tr>'
@@ -119,15 +117,13 @@ function itemform(doctoedit) {
         + (doctoedit ? 'Update' : 'Add') + '"/>'
         + '<input type="submit" name="submit" class="cancel" value="Cancel"/></form>';
 
-    $("#itemform").empty();
-    $("#itemform").append(formhtml);
-
-    var form =  $("form#updateitem");
+    var itemform = popup_dialog(formhtml);
+    var form =  itemform.children("form#updateitem");
     form.children("input.update").bind('click',
           function(event) {
               db.saveDoc(build_item_doc_from_form(doctoedit,form),
                          { success: function() {
-                                        form.remove();
+                                        popup_cleanup(itemform);
                                         update_inventory();
                                      }
                    });
@@ -136,7 +132,7 @@ function itemform(doctoedit) {
 
     form.children('input.cancel').bind('click',
         function(event) {
-            form.remove();
+            popup_cleanup(itemform);
             return false;
         }
     );
