@@ -20,15 +20,15 @@ function build_item_activity() {
     $("#submitsearch").click(function(event) {
         // I guess couchDB can't really do a SQL-like query
         // we'll have to handle it in here :(
-        var query = $("input#searchquery").val();
+        var query = $("input#searchquery").val().toLowerCase();
         db.view("couchinv/items-byname", {
             success: function(data) {
                 var matching = $.grep(data.rows, function(doc,idx) {
                     var value = doc.value;
-                    return (value.name && (value.name.toString().indexOf(query) > -1))
-                           || (value.sku && (value.sku.toString().indexOf(query) > -1))
-                           || (value.barcode && (value.barcode.toString().indexOf(query) > -1))
-                           || (value.desc && (value.desc.toString().indexOf(query) > -1));
+                    return (value.name && (value.name.toString().toLowerCase().indexOf(query) > -1))
+                           || (value.sku && (value.sku.toString().toLowerCase().indexOf(query) > -1))
+                           || (value.barcode && (value.barcode.toString().toLowerCase().indexOf(query) > -1))
+                           || (value.desc && (value.desc.toString().toLowerCase().indexOf(query) > -1));
                 });
                 update_inventory_list(matching);
             }
