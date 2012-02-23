@@ -6,6 +6,7 @@ function build_item_activity() {
                     + '<div id="inventory">'
                         + '<div id="add"><a href="#" class="add">Add Inventory Item</a></div>'
                         + '<div id="itemslist"></div>'
+                        + '<div id="itemdetail"></div>'
                     + '</div>');
 
     $("a.add").bind('click', function(event) {
@@ -15,6 +16,7 @@ function build_item_activity() {
 
     update_inventory();
 }
+
 
 
 function update_inventory() {
@@ -36,6 +38,30 @@ function update_inventory() {
                                 );
             }
 
+            // When one of the item rows is clicked
+            $("#itemslist .itemrow").click(function(event) {
+                var target = $(event.target);
+                if (! target.is('div')) {
+                    // target is a span, get at the containing div
+                    target = target.parents('div');
+                }
+                var docid = target.attr('id');
+                db.openDoc(docid, { success: function(doc) {
+                    $(".itemrow").removeClass('selected');
+                    target.addClass('selected');
+                    var detailhtml = '';
+                    for (var key in doc) {
+                        if (key.substr(0,1) != '_') {  // skip _id, _rev and such
+                            detailhtml = detailhtml + '<p>' + key + ': ' + doc[key] + '</p>';
+                        }
+                    }
+                    var itemdetail = $("#itemdetail");
+                    itemdetail.empty();
+                    itemdetail.append(detailhtml);
+                }});
+                return false;
+            });
+
             // When the "Edit" link is clicked
             $("#itemslist a.edit").click(function(event) {
                 var target = $(event.target);
@@ -46,6 +72,7 @@ function update_inventory() {
                return false;
             });
 
+            // When the "Remove" link is clicked
             $("#itemslist a.remove").click(function(event) {
                 var target =$(event.target);
                 var docid = target.attr('id');
