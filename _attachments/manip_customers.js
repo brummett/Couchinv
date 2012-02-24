@@ -69,6 +69,47 @@ function update_customer_list(rows) {
 	    }
             customerdetail.empty();
             customerdetail.append(detailhtml);
+            customerdetail.attr('data-customerid',docid);
+        }});
+        return false;
+    });
+
+    // When "Edit" is clicked
+    $(".itemlist a.edit").click( function(event) {
+        var target = $(event.target);
+        var docid = target.attr('id');
+        db.openDoc(docid, { success: function(doc) {
+            customerform(doc);
+        }});
+        return false;
+    });
+
+    // When "Remove" is clicked
+    $(".itemlist a.remove").click(function(event) {
+        var target =$(event.target);
+        var docid = target.attr('id');
+        db.openDoc(docid, { success: function(doc) {
+            var popup_html = '<H1>Confirm Remove</H1><p>Are you sure sure '
+                   + 'you want to delete customer ' + doc.firstname + ' ' + doc.lastname + '</p>'
+                   + '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
+                   + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
+            var popup = popup_dialog(popup_html);
+            popup.addClass('warning');
+
+            popup.children("input#Remove").click(function(event) {
+                db.removeDoc(doc, { success: function() {
+                    target.parents("li.itemrow").remove();
+                    if (customerdetail.attr('data-customerid') == docid) {
+                        customerdetail.empty();
+                    }
+                }});
+                popup_cleanup(popup);
+                return false;
+            });
+            popup.children("input#Cancel").click(function(event) {
+                popup_cleanup(popup);
+                return false;
+            });
         }});
         return false;
     });
@@ -142,12 +183,15 @@ function build_customer_doc_from_form(doc,form) {
     if (!doc) {
 	doc = new Object;
     }
-    doc.firstname   = form.find("input#firstname").val();
-    doc.lastname    = form.find("input#lastname").val();
-    doc.address	    = form.find("input#address").val();
-    doc.phonenumber = form.find("input#phonenumber").val();
-    doc.email	    = form.find("input#email").val();
-    doc.notes	    = form.find("input#notes").val();
+    var fields = ['firstname','lastname','address','phonenumber','email','notes'];
+    for (var i in fields) {
+        var fieldname = fields[i];
+        var formvalue = form.find("input#" + fieldname).val();
+        if (formvalue == undefined) {
+            formvalue = '';
+        }
+        doc[fieldname] = formvalue;
+    }
     doc.type	    = 'customer';
 
     return doc;
