@@ -16,6 +16,8 @@ function draw_item_list (spec, rows) {
     var editor = spec.editor;
     var removerid = spec.removerid;
 
+    var num_columns = headers.length + 1;  // +1 because of edit/remove
+    var column_width = (100 / num_columns) + '%';
     var datamap = {};  // keyed by docid value is the doc
 
     list.empty();
@@ -24,7 +26,7 @@ function draw_item_list (spec, rows) {
     var ul = $('<ul class="itemlist"/>');
     var html = '<lh class="itemrow">';
     for (var i in headers) {
-        html = html + '<span>' + headers[i].name + '</span>';
+        html = html + '<span class="datawidth">' + headers[i].name + '</span>';
     }
     html = html + '</lh>';
 
@@ -35,7 +37,7 @@ function draw_item_list (spec, rows) {
 
         html = html + '<li id="' + docid + '" class="itemrow">';
         $.each(headers, function (idx, header) {
-            html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + '">'
+            html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + ' datawidth">'
                     + header.value(doc) + '</span>';
         });
         html = html + '<span class="editremove"><a href="#" id="' + docid + '" class="edit">Edit</a>   '
@@ -43,6 +45,8 @@ function draw_item_list (spec, rows) {
     }
     ul.append(html);
     list.append(ul);
+
+    $(".datawidth").css('width', column_width);
 
     // Show detail about the item on in the 'detail' element when you click on it
     $(".itemrow").click( function(event) {
