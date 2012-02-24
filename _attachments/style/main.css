@@ -62,28 +62,63 @@ div#activity {
   float:left;
 }
 
-#itemslist .selected {
+/* The item and customer detail */
+.itemdetail {
+  border: 2px solid #dde;
+  background: #aaf;
+  float: right;
+  padding: 10px;
+  width: 30%;
+  margin: 2px;
+}
+
+.itemdetail li {
+  list-style-type:none;
+  margin-top: 4px;
+}
+
+.itemdetail li span {
+  display: inline-block;
+  width: 50%;
+}
+
+/* The item and customer lists */
+.itemlist {
+  border: 4px solid #dde;
+  background: #eef;
+  padding: 8px;
+  width: 60%;
+  float: left;
+}
+
+.itemlist lh {
+  border-bottom:1px solid black;
+  font-weight: bold;
+}
+
+.itemlist .selected {
   background: yellow;
 }
 
 .itemrow {
   border-bottom:1px solid black;
   padding:4px;
+  margin: 4px;
+  list-style-type:none
 }
 
 .itemrow span {
   display: inline-block;
-  width:20%;
+  width:30%;
 }
 
-.itemheader {
+.itemrow span.editremove {
+  float:right;
+}
+
+.listheader {
   border-bottom:1px solid black;
   font-weight: bold;
-}
-
-.itemheader span {
-    display: inline-block;
-    width:20%;
 }
 
 #sidebar {
@@ -173,3 +208,4 @@ div.avatar img {
   text-align: center;
   margin: 100px;
 }
+
