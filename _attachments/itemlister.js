@@ -35,7 +35,7 @@ function draw_item_list (spec, rows) {
 
         html = html + '<li id="' + docid + '" class="itemrow">';
         $.each(headers, function (idx, header) {
-            html = html + '<span class="' + header.cssclass + '">'
+            html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + '">'
                     + header.value(doc) + '</span>';
         });
         html = html + '<span class="editremove"><a href="#" id="' + docid + '" class="edit">Edit</a>   '
