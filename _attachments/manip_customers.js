@@ -22,99 +22,26 @@ function build_customer_activity() {
 function initial_customer_list() {
     db.view("couchinv/customers-byname", {
         success: function(data) {
-	    update_customer_list(data.rows);
+	    //update_customer_list(data.rows);
+           draw_item_list({ list: $("#customerlist"),
+                            detail: $("#customerdetail"),
+                            editor: customerform,
+                            removerid: function(doc) {
+                                          return 'customer ' + doc.firstname + ' ' + doc.lastname;
+                                       },
+                            headers: [ { name: 'Name',
+                                         value: function(doc) {
+                                                   return doc.lastname + ', ' + doc.firstname;
+                                                 },
+                                          cssclass: 'name' },
+                                       { name: 'Email',
+                                         value: function(doc) { return doc.email; },
+                                         cssclass: 'email' },
+                                     ]
+                        }, data.rows);
         }
     });
 }
-
-
-function update_customer_list(rows) {
-    var customerlist = $("#customerlist");
-    customerlist.empty();
-    var customerdetail = $("#customerdetail");
-    customerdetail.empty();
-
-    var listhtml = '<ul class="itemlist"><lh class="itemrow"><span>Name</span><span>Email</span></lh>';
-    for (i in rows) {
-	var row = rows[i].value;
-	var customerid = row._id;
-	listhtml = listhtml + '<li id="' + customerid + '" class="itemrow">'
-		    + '<span class="name">' + row.lastname + ', ' + row.firstname + '</span>'
-		    + '<span class="email">' + row.email + '</span>'
-		    + '<span class="editremove"><a href="#" id="' + customerid + '" class="edit">Edit</a>   '
-		    + '<a href="#" id="' + customerid + '" class="remove">Remove</a></span></li>';
-    }
-    listhtml = listhtml + '</ul>';
-    customerlist.append(listhtml);
-    $(".itemlist .itemrow").click( function(event) {
-	var target = $(event.target);
-	if (! target.is('li')) {
-            // if the target was one of the spans, 
-	    target = target.parents('li');
-	}
-	var docid = target.attr('id');
-        if (! docid) {
-            // They clicked on the header
-            return false;
-        }
-	db.openDoc(docid, { success: function(doc) {
-	    $(".itemrow").removeClass('selected');
-	    target.addClass('selected');
-	    var detailhtml = '<ul class="itemdetail">';
-	    for (var key in doc) {
-		if (key.substr(0,1) != '_') {  // skip _id _rev and such
-		    detailhtml = detailhtml + '<li><span>' + key + '</span><span>'
-				    + doc[key] + '</span></li>';
-		}
-	    }
-            customerdetail.empty();
-            customerdetail.append(detailhtml);
-            customerdetail.attr('data-customerid',docid);
-        }});
-        return false;
-    });
-
-    // When "Edit" is clicked
-    $(".itemlist a.edit").click( function(event) {
-        var target = $(event.target);
-        var docid = target.attr('id');
-        db.openDoc(docid, { success: function(doc) {
-            customerform(doc);
-        }});
-        return false;
-    });
-
-    // When "Remove" is clicked
-    $(".itemlist a.remove").click(function(event) {
-        var target =$(event.target);
-        var docid = target.attr('id');
-        db.openDoc(docid, { success: function(doc) {
-            var popup_html = '<H1>Confirm Remove</H1><p>Are you sure sure '
-                   + 'you want to delete customer ' + doc.firstname + ' ' + doc.lastname + '</p>'
-                   + '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
-                   + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
-            var popup = popup_dialog(popup_html);
-            popup.addClass('warning');
-
-            popup.children("input#Remove").click(function(event) {
-                db.removeDoc(doc, { success: function() {
-                    target.parents("li.itemrow").remove();
-                    if (customerdetail.attr('data-customerid') == docid) {
-                        customerdetail.empty();
-                    }
-                }});
-                popup_cleanup(popup);
-                return false;
-            });
-            popup.children("input#Cancel").click(function(event) {
-                popup_cleanup(popup);
-                return false;
-            });
-        }});
-        return false;
-    });
-}
-    
 
 
 function customerform(doctoedit) {
