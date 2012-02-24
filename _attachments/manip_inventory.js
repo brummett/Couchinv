@@ -49,91 +49,20 @@ function build_item_activity() {
 function initial_inventory_list() {
     db.view("couchinv/items-byname", {
         success: function(data) {
-            update_inventory_list(data.rows);
+            draw_item_list({ list: $("#itemslist"),
+                             detail: $("#itemdetail"),
+                             editor: itemform,
+                             removerid: function(doc) { return 'item ' + doc.name; },
+                             headers: [ { name: 'Name',
+                                          value: function(doc) { return doc.name; },
+                                          cssclass: 'name' },
+                                        { name: 'SKU',
+                                          value: function(doc) { return doc.sku; }},
+                                        { name: 'Count',
+                                          value: function(doc) { return doc.count; }},
+                                      ]
+                           }, data.rows);
         }
-    });
-}
-
-
-
-
-function update_inventory_list(rows) {
-    $("#itemslist").empty();
-    $("#itemdetail").empty();
-
-    $("#itemslist").append('<div class="itemheader"><span>Name</span><span>SKU</span><span>count</span></div>');
-    for (i in rows) {
-        var itemid = rows[i].value._id;
-        $("#itemslist").append('<div id="' + itemid + '" class="itemrow">'
-                          + '<span>'        + rows[i].value.name
-                          + '</span><span>' + rows[i].value.sku
-                          + '</span><span>' + rows[i].value.count
-                          + '</span><span>'
-                          + '<a href="#" id="' + itemid + '" class="edit">Edit</a>  '
-                          + '<a href="#" id="' + itemid + '" class="remove">Remove</a>'
-                          + '</span></div>'
-                        );
-    }
-
-    // When one of the item rows is clicked
-    $("#itemslist .itemrow").click(function(event) {
-        var target = $(event.target);
-        if (! target.is('div')) {
-            // target is a span, get at the containing div
-            target = target.parents('div');
-        }
-        var docid = target.attr('id');
-        db.openDoc(docid, { success: function(doc) {
-            $(".itemrow").removeClass('selected');
-            target.addClass('selected');
-            var detailhtml = '';
-            for (var key in doc) {
-                if (key.substr(0,1) != '_') {  // skip _id, _rev and such
-                    detailhtml = detailhtml + '<p>' + key + ': ' + doc[key] + '</p>';
-                }
-            }
-            var itemdetail = $("#itemdetail");
-            itemdetail.empty();
-            itemdetail.append(detailhtml);
-        }});
-        return false;
-    });
-
-    // When the "Edit" link is clicked
-    $("#itemslist a.edit").click(function(event) {
-        var target = $(event.target);
-        var docid = target.attr('id');
-        db.openDoc(docid, { success: function(doc) {
-            itemform(doc);
-        }});
-       return false;
-    });
-
-    // When the "Remove" link is clicked
-    $("#itemslist a.remove").click(function(event) {
-        var target =$(event.target);
-        var docid = target.attr('id');
-        db.openDoc(docid, { success: function(doc) {
-            var popup_html = '<H1>Confirm Remove</H1>Are you sure sure '
-                   + 'you want to delete ' + doc.name + '<p></p>'
-                   + '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
-                   + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
-            var popup = popup_dialog(popup_html);
-            popup.addClass('warning');
-
-            popup.children("input#Remove").click(function(event) {
-                db.removeDoc(doc, { success: function() {
-                    target.parents("div.itemrow").remove();
-                }});
-                popup_cleanup(popup);
-                return false;
-            });
-            popup.children("input#Cancel").click(function(event) {
-                popup_cleanup(popup);
-                return false;
-            });
-        }});
-        return false;
     });
 }
 

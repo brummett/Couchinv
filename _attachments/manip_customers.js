@@ -22,7 +22,6 @@ function build_customer_activity() {
 function initial_customer_list() {
     db.view("couchinv/customers-byname", {
         success: function(data) {
-	    //update_customer_list(data.rows);
            draw_item_list({ list: $("#customerlist"),
                             detail: $("#customerdetail"),
                             editor: customerform,
