@@ -1,3 +1,12 @@
+var item_list_headers = [ { name: 'Name',
+                            value: function(doc) { return doc.name; },
+                            cssclass: 'name' },
+                          { name: 'SKU',
+                            value: function(doc) { return doc.sku; }},
+                          { name: 'Count',
+                            value: function(doc) { return doc.count; }},
+                       ];
+
 function build_item_activity() {
     var activity = $("#activity");
     activity.empty();
@@ -30,7 +39,12 @@ function build_item_activity() {
                            || (value.barcode && (value.barcode.toString().toLowerCase().indexOf(query) > -1))
                            || (value.desc && (value.desc.toString().toLowerCase().indexOf(query) > -1));
                 });
-                update_inventory_list(matching);
+                draw_item_list({ list: $("#itemslist"),
+                                 detail: $("#itemdetail"),
+                                 editor: itemform,
+                                 removerid: function(doc) { return 'item ' + doc.name; },
+                                 headers: item_list_headers
+                               },matching);
             }
         });
         return false;
@@ -53,15 +67,8 @@ function initial_inventory_list() {
                              detail: $("#itemdetail"),
                              editor: itemform,
                              removerid: function(doc) { return 'item ' + doc.name; },
-                             headers: [ { name: 'Name',
-                                          value: function(doc) { return doc.name; },
-                                          cssclass: 'name' },
-                                        { name: 'SKU',
-                                          value: function(doc) { return doc.sku; }},
-                                        { name: 'Count',
-                                          value: function(doc) { return doc.count; }},
-                                      ]
-                           }, data.rows);
+                             headers: item_list_headers
+                            }, data.rows);
         }
     });
 }
