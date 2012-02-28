@@ -1,3 +1,13 @@
+var item_list_headers = [ { name: 'Name',
+                            value: function(doc) {
+                                       return doc.lastname + ', ' + doc.firstname;
+                                    },
+                            cssclass: 'name' },
+                          { name: 'Email',
+                            value: function(doc) { return doc.email; },
+                            cssclass: 'email' },
+                        ];
+
 
 function build_customer_activity() {
     var activity = $("#activity");
@@ -16,6 +26,31 @@ function build_customer_activity() {
         return false;
     });
 
+    $("#submitsearch").click( function(event) {
+        var query = $("input#searchquery").val().toLowerCase();
+        var db_query = 'couchinv/customers-byname?startkey="' + query + '"&endkey="'
+                                                       + query + '\u9999"';
+        db.view('couchinv/customers-byname?startkey="' + query + '"&endkey="'
+                                                       + query + '\u9999"' ,
+            { success: function(data) {
+                draw_item_list( {   list: $("#customerlist"),
+                                    detail: $("customerdetail"),
+                                    editor: customerform,
+                                    removerid: function(doc) {
+                                          return 'customer ' + doc.firstname + ' ' + doc.lastname;
+                                       },
+                                    headers: item_list_headers
+                              }, data.rows);
+        }});
+        return false;
+    });
+
+    $("#resetsearch").click( function(event) {
+        $("input#searchquery").val('');
+        initial_customer_list();
+        return false;
+    });
+
     initial_customer_list();
 }
 
@@ -28,15 +63,7 @@ function initial_customer_list() {
                             removerid: function(doc) {
                                           return 'customer ' + doc.firstname + ' ' + doc.lastname;
                                        },
-                            headers: [ { name: 'Name',
-                                         value: function(doc) {
-                                                   return doc.lastname + ', ' + doc.firstname;
-                                                 },
-                                          cssclass: 'name' },
-                                       { name: 'Email',
-                                         value: function(doc) { return doc.email; },
-                                         cssclass: 'email' },
-                                     ]
+                            headers: item_list_headers
                         }, data.rows);
         }
     });
