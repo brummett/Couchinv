@@ -30,19 +30,24 @@ function draw_item_list (spec, rows) {
     }
     html = html + '</lh>';
 
-    for (var i in rows) {
-        var doc = rows[i].value;
-        var docid = doc._id;
-        if (! datamap[docid]) {  // Don't print duplicate documents
-            datamap[docid] = doc;
+    if (rows.length == 0) {
+        html = html + '<li class="itemrow">No matches</li>';
+    } else {
 
-            html = html + '<li id="' + docid + '" class="itemrow">';
-            $.each(headers, function (idx, header) {
-                html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + ' datawidth">'
-                        + header.value(doc) + '</span>';
-            });
-            html = html + '<span class="editremove"><a href="#" id="' + docid + '" class="edit">Edit</a>   '
-                    + '<a href="#" id="' + docid + '" class="remove">Remove</a></span></li>';
+        for (var i in rows) {
+            var doc = rows[i].value;
+            var docid = doc._id;
+            if (! datamap[docid]) {  // Don't print duplicate documents
+                datamap[docid] = doc;
+
+                html = html + '<li id="' + docid + '" class="itemrow">';
+                $.each(headers, function (idx, header) {
+                    html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + ' datawidth">'
+                            + header.value(doc) + '</span>';
+                });
+                html = html + '<span class="editremove"><a href="#" id="' + docid + '" class="edit">Edit</a>   '
+                        + '<a href="#" id="' + docid + '" class="remove">Remove</a></span></li>';
+            }
         }
     }
     ul.append(html);
