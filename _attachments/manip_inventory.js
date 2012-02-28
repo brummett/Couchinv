@@ -1,10 +1,10 @@
 var item_list_headers = [ { name: 'Name',
-                            value: function(doc) { return doc.name; },
+                            value: function(row) { return row.value.name; },
                             cssclass: 'name' },
                           { name: 'SKU',
-                            value: function(doc) { return doc.sku; }},
+                            value: function(row) { return row.value.sku; }},
                           { name: 'Count',
-                            value: function(doc) { return doc.count; }},
+                            value: function(row) { return row.value.count; }},
                        ];
 
 function build_item_activity() {

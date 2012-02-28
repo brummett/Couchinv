@@ -1,13 +1,13 @@
 var customer_list_headers = [ { name: 'Name',
-                            value: function(doc) {
-                                       return doc.lastname + ', ' + doc.firstname;
+                            value: function(row) {
+                                       return row.value.lastname + ', ' + row.value.firstname;
                                     },
                             cssclass: 'name' },
                           { name: 'Email',
-                            value: function(doc) { return doc.email; },
+                            value: function(row) { return row.value.email; },
                             cssclass: 'email' },
                           { name: 'Phone',
-                            value: function(doc) { return doc.phonenumber; },
+                            value: function(row) { return row.value.phonenumber; },
                             cssclass: 'phone' },
                         ];
 
