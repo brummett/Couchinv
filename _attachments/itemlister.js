@@ -33,15 +33,17 @@ function draw_item_list (spec, rows) {
     for (var i in rows) {
         var doc = rows[i].value;
         var docid = doc._id;
-        datamap[docid] = doc;
+        if (! datamap[docid]) {  // Don't print duplicate documents
+            datamap[docid] = doc;
 
-        html = html + '<li id="' + docid + '" class="itemrow">';
-        $.each(headers, function (idx, header) {
-            html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + ' datawidth">'
-                    + header.value(doc) + '</span>';
-        });
-        html = html + '<span class="editremove"><a href="#" id="' + docid + '" class="edit">Edit</a>   '
-                + '<a href="#" id="' + docid + '" class="remove">Remove</a></span></li>';
+            html = html + '<li id="' + docid + '" class="itemrow">';
+            $.each(headers, function (idx, header) {
+                html = html + '<span class="' + (header.cssclass ? header.cssclass : '')  + ' datawidth">'
+                        + header.value(doc) + '</span>';
+            });
+            html = html + '<span class="editremove"><a href="#" id="' + docid + '" class="edit">Edit</a>   '
+                    + '<a href="#" id="' + docid + '" class="remove">Remove</a></span></li>';
+        }
     }
     ul.append(html);
     list.append(ul);
