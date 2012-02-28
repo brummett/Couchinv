@@ -6,6 +6,9 @@ var customer_list_headers = [ { name: 'Name',
                           { name: 'Email',
                             value: function(doc) { return doc.email; },
                             cssclass: 'email' },
+                          { name: 'Phone',
+                            value: function(doc) { return doc.phonenumber; },
+                            cssclass: 'phone' },
                         ];
 
 
@@ -28,9 +31,7 @@ function build_customer_activity() {
 
     $("#submitsearch").click( function(event) {
         var query = $("input#searchquery").val().toLowerCase();
-        var db_query = 'couchinv/customers-byname?startkey="' + query + '"&endkey="'
-                                                       + query + '\u9999"';
-        db.view('couchinv/customers-byname?startkey="' + query + '"&endkey="'
+        db.view('couchinv/customers-by_any_name?startkey="' + query + '"&endkey="'
                                                        + query + '\u9999"' ,
             { success: function(data) {
                 draw_item_list( {   list: $("#customerlist"),
