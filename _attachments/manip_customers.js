@@ -1,4 +1,4 @@
-var item_list_headers = [ { name: 'Name',
+var customer_list_headers = [ { name: 'Name',
                             value: function(doc) {
                                        return doc.lastname + ', ' + doc.firstname;
                                     },
@@ -39,7 +39,7 @@ function build_customer_activity() {
                                     removerid: function(doc) {
                                           return 'customer ' + doc.firstname + ' ' + doc.lastname;
                                        },
-                                    headers: item_list_headers
+                                    headers: customer_list_headers
                               }, data.rows);
         }});
         return false;
@@ -63,7 +63,7 @@ function initial_customer_list() {
                             removerid: function(doc) {
                                           return 'customer ' + doc.firstname + ' ' + doc.lastname;
                                        },
-                            headers: item_list_headers
+                            headers: customer_list_headers
                         }, data.rows);
         }
     });
