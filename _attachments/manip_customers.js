@@ -140,7 +140,7 @@ function build_customer_doc_from_form(doc,form) {
     var fields = ['firstname','lastname','address','phonenumber','email','notes'];
     for (var i in fields) {
         var fieldname = fields[i];
-        var formvalue = form.find("input#" + fieldname).val();
+        var formvalue = form.find("#" + fieldname).val();
         if (formvalue == undefined) {
             formvalue = '';
         }

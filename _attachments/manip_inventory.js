@@ -141,11 +141,11 @@ function build_item_doc_from_form(doc,form) {
     if (!doc) {
         doc = new Object;
     }
-    doc.name    = form.find("input#name").val();
-    doc.sku     = form.find("input#sku").val();
-    doc.barcode = form.find("input#barcode").val();
-    doc.count   = form.find("input#count").val();
-    doc.desc    = form.find("textarea#desc").val();
+    doc.name    = form.find("#name").val();
+    doc.sku     = form.find("#sku").val();
+    doc.barcode = form.find("#barcode").val();
+    doc.count   = form.find("#count").val();
+    doc.desc    = form.find("#desc").val();
     doc.type    = 'item';
 
     return(doc);
