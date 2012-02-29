@@ -69,7 +69,7 @@ function warehouseform(doctoedit) {
 
     if (doctoedit) {
 	// Editing an existing customer
-	formhtml = formhtml 
+        formhtml = formhtml 
                    + '<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>';
     }
 
