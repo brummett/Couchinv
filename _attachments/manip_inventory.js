@@ -135,6 +135,8 @@ function itemform(doctoedit) {
         }
     );
 
+    form.find("input#name").focus();
+
 }
 
 function build_item_doc_from_form(doc,form) {

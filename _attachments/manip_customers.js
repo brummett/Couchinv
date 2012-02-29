@@ -131,6 +131,8 @@ function customerform(doctoedit) {
         popup_cleanup(dialog);
         return false;
     });
+
+    form.find("input#firstname").focus();
 }
 
 function build_customer_doc_from_form(doc,form) {

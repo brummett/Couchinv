@@ -112,6 +112,7 @@ function warehouseform(doctoedit) {
         popup_cleanup(dialog);
         return false;
     });
+    form.find("input#name").focus();
 }
 
 function build_warehouse_doc_from_form(doc,form) {
