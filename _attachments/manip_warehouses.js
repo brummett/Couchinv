@@ -100,17 +100,17 @@ function warehouseform(doctoedit) {
     var dialog = popup_dialog(formhtml);
     var form = dialog.children("form#updatewarehouse");
     form.children("input.update").click( function(event) {
-	db.saveDoc(build_warehouse_doc_from_form(doctoedit, form),
-		{ success: function() {
-			popup_cleanup(dialog);
-			initial_warehouse_list();
-	    }});
-	return false;
+        db.saveDoc(build_warehouse_doc_from_form(doctoedit, form),
+            { success: function() {
+                popup_cleanup(dialog);
+                initial_warehouse_list();
+             }});
+        return false;
     });
 
     form.children('input.cancel').click( function(event) {
-	popup_cleanup(dialog);
-	return false;
+        popup_cleanup(dialog);
+        return false;
     });
 }
 
