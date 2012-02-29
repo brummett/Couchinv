@@ -1,10 +1,11 @@
 var db = $.couch.db("couchinv");
 
-var activity_names = [ 'Inventory Items', 'Customers', 'Warehouses' ];
+var activity_names = [ 'Inventory Items', 'Customers', 'Warehouses', 'Receive Shipment' ];
 var activities = {
     'Inventory Items': build_item_activity,
     'Customers': build_customer_activity,
-    'Warehouses': build_warehouse_activity
+    'Warehouses': build_warehouse_activity,
+    'Receive Shipment': build_receive_activity
 };
 
 function navigation_run () {
