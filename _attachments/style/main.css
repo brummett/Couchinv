@@ -185,3 +185,18 @@ div.avatar img {
   margin: 100px;
 }
 
+ul#orderdetails li {
+  border-bottom:1px solid black;
+  padding:4px;
+  margin: 4px;
+  list-style-type:none
+}
+
+ul#orderdetails li span {
+  display: inline-block;
+  width: 20%;
+}
+
+li.unknown_item {
+  background-color: red;
+}
