@@ -121,6 +121,9 @@ function receive_shipment_form (doctoedit) {
                         return false;
                     });
                 }
+
+                itemscan.val('');
+                itemscan.focus();
             };
                     
             $("form#scanitems").submit(function(event) {
