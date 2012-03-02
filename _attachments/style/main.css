@@ -99,6 +99,10 @@ div#activity {
   float:right;
 }
 
+lh.itemrow {
+  margin-bottom:4px;
+}
+
 .listheader {
   border-bottom:1px solid black;
   font-weight: bold;
@@ -192,11 +196,20 @@ ul#orderdetails li {
   list-style-type:none
 }
 
-ul#orderdetails li span {
+ul#orderdetails span {
   display: inline-block;
   width: 20%;
 }
 
-li.unknown_item {
+ul#orderdetails img {
+  padding-top: 0.2em;
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+ul#orderdetails li.unknown_item {
   background-color: red;
 }
+

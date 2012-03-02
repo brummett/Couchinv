@@ -43,7 +43,8 @@ function receive_shipment_form (doctoedit) {
                 + '</table></div>'
                 + '<div id="scanitems"><form id="scanitems"><input type="text" id="itemscan"/>'
                     + '<input type="submit" value="Scan" id="submitscan"/></form></div>'
-                + '<div id="orderdetaildiv"><ul id="orderdetails"/></div>'
+                + '<div id="orderdetaildiv"><ul id="orderdetails" class="itemlist">'
+                    + '<lh class="itemrow"><span/><span>Count</span><span>Name</span><span/></lh></ul></div>'
                 + '<form><input type="submit" id="submitorder" value="All Done"/></form>';
 
             activity.append(formhtml);
@@ -63,24 +64,28 @@ function receive_shipment_form (doctoedit) {
                     thisli.children('span.count').text(items_for_order[item_ident]);
                 } else {
                     items_for_order[item_ident] = 1;
-                    thisli = $('<li id="' + item_ident
-                               + '"><span class="count">1</span><span class="name">'
+                    thisli = $('<li class="itemrow" id="' + item_ident + '"><span class="buttons">'
+                        + '<a href="#" class="increment"><img src="images/up_arrow_blue.png" alt="increment"></a>'
+                        + '<a href="#" class="decrement"><img src="images/down_arrow_blue.png" alt="decrement"></a>'
+                        + '<a href="#" class="remove"><img src="images/delete_x_red.png" alt="remove"></a>'
+                        + '</span><span class="count">1</span><span class="name">'
                                + item_name + '</span><span>' + item_ident + '</span>');
+
                     itemdetails.append(thisli);
-                    inc_btn = $('<a href="#" class="increment"><img src="images/up_arrow_blue.png" alt="increment" width="16" height="16"></a>');
-                    inc_btn.click( function(event) {
+
+                    thisli.find('a.increment').click( function(event) {
                         items_for_order[item_ident]++;
                         thisli.children('span.count').text(items_for_order[item_ident]);
                         return false;
                     });
-                    dec_btn = $('<a href="#" class="decrement"><img src="images/down_arrow_blue.png" alt="decrement" width="16" height="16"></a>');
-                    dec_btn.click(function (event) {
+
+                    thisli.find('a.decrement').click(function (event) {
                         items_for_order[item_ident]--;
                         thisli.children('span.count').text(items_for_order[item_ident]);
                         return false;
                     });
-                    rem_btn = $('<a href="#" class="remove"><img src="images/delete_x_red.png" alt="remove" width="16" height="16"></a>');
-                    rem_btn.click(function (event) {
+
+                    thisli.find('a.remove').click(function (event) {
                         var popuphtml = '<h1>Confirm Remove</h1><p>Are you sure you want to delete '
                                 + (item_name ? item_name : item_ident) + ' from the order?</p>'
                                 +  '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
@@ -100,7 +105,6 @@ function receive_shipment_form (doctoedit) {
 
                         return false;
                     });
-                    thisli.prepend(inc_btn, dec_btn, rem_btn);
                 }
 
                 if (typeof(item) != "object") {
