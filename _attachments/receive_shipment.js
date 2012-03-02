@@ -111,8 +111,12 @@ function receive_shipment_form (doctoedit) {
                     thisli.addClass("unknown_item");
                     thisli.click( function(event) {
                         // bring up the add/edit item popup
-                        var newitem = new Object;
-                        newitem.barcode = item_ident;
+                        var newitem = {
+                            barcode: item_ident,
+                            name: '',
+                            sku: '',
+                            desc: '',
+                        };
                         itemform(newitem);
                         return false;
                     });
