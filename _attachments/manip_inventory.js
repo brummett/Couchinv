@@ -3,8 +3,8 @@ var item_list_headers = [ { name: 'Name',
                             cssclass: 'name' },
                           { name: 'SKU',
                             value: function(row) { return row.value.sku; }},
-                          { name: 'Count',
-                            value: function(row) { return row.value.count; }},
+                          { name: 'Barcode',
+                            value: function(row) { return row.value.barcode; }},
                        ];
 
 function build_item_activity() {
@@ -184,7 +184,6 @@ function build_item_doc_from_form(doc,form) {
     doc.name    = form.find("#name").val();
     doc.sku     = form.find("#sku").val();
     doc.barcode = form.find("#barcode").val();
-    doc.count   = form.find("#count").val();
     doc.desc    = form.find("#desc").val();
     doc.type    = 'item';
 
