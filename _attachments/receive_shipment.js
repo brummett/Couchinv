@@ -12,7 +12,7 @@ function receive_shipment_form (doctoedit) {
     db.view("couchinv/warehouse-summary-byname",
         { success: function(warehouse_data) {
 
-            var warehouse_select = '<select name="warehouseid">';
+            var warehouse_select = '<select id="warehouseid">';
             $.each(warehouse_data.rows, function(idx,row) {
                 warehouse_select = warehouse_select + '<option value="' + row['id'] + '"';
                 if (doctoedit && doctoedit.warehouseid == row['id']) {
@@ -156,6 +156,34 @@ function receive_shipment_form (doctoedit) {
             $("input#submitorder").click( function(event) {
                 // When the order is complete
 
+                var warehouse_id = $("select#warehouseid").val();
+
+                var popup_success = function () {
+                    var popup = popup_dialog('<h1>Shipment Recorded</h1><input id="ok" type="submit" value="Ok"/>');
+                    $(popup).find('input#ok').click( function (event) {
+                        event.preventDefault();
+                        popup_cleanup(popup);
+                        receive_shipment_form();  // Back to the beginning.  This may be a memory leak!?
+                    });
+                };
+
+                var update_inventory = function (warehouse) {
+                    for (barcode in items_for_order) {
+                        warehouse.inventory[barcode] += items_for_order[barcode];
+                    }
+
+                    var receipt = new Object();
+                    receipt.type = 'receive';
+                    receipt.order_number = $("input#ordernumber").val();
+                    receipt.warehouse_id = warehouse_id;
+                    receipt.from = '';  // FIXME need a ship-from field in the form
+                    receipt.date = $("input#date").val();
+                    receipt.items = items_for_order;
+                    db.saveDoc(receipt, { success: popup_success });
+                };
+
+                // We'll need the warehouse document
+                db.openDoc( warehouse_id, { success: update_inventory });
                 event.perventDefault();
             });
 
