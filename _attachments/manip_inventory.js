@@ -74,52 +74,76 @@ function initial_inventory_list() {
 }
 
 function itemform(doctoedit) {
-    var formhtml = '<h1>' + (doctoedit ? 'Edit' : 'Add') + ' Item</h1>';
-    formhtml = formhtml + '<form name="updateitem" id="updateitem" action="">';
+    var formdiv = $('<div><h1>' + (doctoedit ? 'Edit' : 'Add') + ' Item</h1></div>');
+    var form = $('<form name="updateitem" id="updateitem" action=""/>');
+    formdiv.append(form);
 
     if (doctoedit) {
         // editing an existing item
-        formhtml = formhtml +
-            '<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>';
+        form.append('<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>');
     }
 
-    formhtml = formhtml + '<table>'
-        + '<tr><td class="prompt">Name</td>'
-        + '<td><input name="name" type="text" id="name" value="'
-            + (doctoedit ? doctoedit.name : '')
-            + '"/></td></tr>'
+    var formtable = $("<table/>");
+    form.append(formtable);
 
-        + '<tr><td class="prompt">SKU</td>'
-        + '<td><input name="sku" type="text" id="sku" value="'
-            + (doctoedit ? doctoedit.sku : '')
-            + '"/></td></tr>'
+    var name_row = $('<tr><td class="prompt">Name</td>'
+                    + '<td><input name="name" type="text" id="name" value="'
+                    + (doctoedit ? doctoedit.name : '')
+                    + '"/><span class="errortext"/></td></tr>');
 
-        + '<tr><td class="prompt">Barcode</td>'
-        + '<td><input name="barcode" type="text" id="barcode" value="'
-            + (doctoedit ? doctoedit.barcode : '' )
-            + '"/></td></tr>'
+    var sku_row = $('<tr><td class="prompt">SKU</td>'
+                    + '<td><input name="sku" type="text" id="sku" value="'
+                    + (doctoedit ? doctoedit.sku : '')
+                    + '"/><span class="errortext"/></td></tr>');
 
-        + '<tr><td class="prompt">Description</td>'
-        + '<td><textarea name="desc" rows="5" cols="40" id="desc">'
-            + (doctoedit ? doctoedit.desc : '' )
-            + '</textarea></td></tr>'
+    var barcode_row = $('<tr><td class="prompt">Barcode</td>'
+                    + '<td><input name="barcode" type="text" id="barcode" value="'
+                    + (doctoedit ? doctoedit.barcode : '' )
+                    + '"/><span class="errortext"/></td></tr>');
 
-        + '<tr><td class="prompt">Count</td>'
-        + '<td><input name="count" type="text" id="count" value="'
-            + (doctoedit ? doctoedit.count : '0')
-            + '"/></td></tr>';
+    var desc_row = $('<tr><td class="prompt">Description</td>'
+                    + '<td><textarea name="desc" rows="5" cols="40" id="desc">'
+                    + (doctoedit ? doctoedit.desc : '' )
+                    + '</textarea></td></tr>');
 
-    formhtml = formhtml + 
-        '</table>'
-        + '<input type="submit" name="submit" class="update" value="'
-        + (doctoedit ? 'Update' : 'Add') + '"/>'
-        + '<input type="submit" name="submit" class="cancel" value="Cancel"/></form>';
+    formtable.append(name_row, sku_row, barcode_row, desc_row);
 
-    var itemform = popup_dialog(formhtml);
-    var form =  itemform.children("form#updateitem");
+    form.append('<input type="submit" name="submit" class="update" value="'
+                + (doctoedit ? 'Update' : 'Add') + '"/>'
+                + '<input type="submit" name="submit" class="cancel" value="Cancel"/>');
+
+    var form_popup = popup_dialog(formdiv);
+
+    var mark_error = function (row,text) {
+            var text_space = row.find('.errortext');
+            row.addClass("problem");
+            text_space.text(text);
+            row.children('input').focus();
+    };
+
     form.children("input.update").bind('click',
         function(event) {
             var doctosave = build_item_doc_from_form(doctoedit,form);
+
+            form_popup.find(".problem").removeClass("problem");  // remove all previous problems
+            $('.errortext').text('');
+
+            var num_problems = 0;
+            if (! doctosave.barcode) {
+                mark_error(barcode_row, 'Barcode required');
+                num_problems++;
+            }
+            if (! doctosave.sku) {
+                mark_error(sku_row, 'SKU required');
+                num_problems++;
+            }
+            if (! doctosave.name) {
+                mark_error(name_row, 'Name required');
+                num_problems++;
+            }
+            if (num_problems) {
+                return false;
+            }
     
             // Verify that this newly added item has a unique sku and barcode
             var query = '["' + doctosave.barcode + '","' + doctosave.sku + '"]';
@@ -128,34 +152,28 @@ function itemform(doctoedit) {
                     // Look through the IDs of the matching rows.  If all of them match
                     // the ID of this document we're saving, then it's only returning rows
                     // from this doc, and it's OK to save over it
-                    var is_conflict = 0;
-                    $.each(data.rows, function(row,idx) {
-                        if (row['id'] != doctosave['id']) {
-                            is_safe = 1;
-                        }
+                    var conflicts = $.grep(data.rows, function (row, idx) {
+                            return (row['id'] != doctosave['_id'])   // Can't conflict with ourselves
                     });
-                    if (is_conflict) {
+
+                    if (conflicts.length) {
                         // There was a dupe
-                        itemform.find(".prompt").parent().removeClass("problem");  // remove all previous problems
+
                         var matching_fields = {};
-                        $.each(data.rows, function(row,idx) {
+                        $.each(conflicts, function(idx,row) {
                             matching_fields[row.value] = 1;  // row.value is 'sku' or 'barcode'
                         });
                         if (matching_fields.barcode) {
-                            var barcode_input = $("input#barcode");
-                            barcode_input.parents("tr").addClass("problem");
-                            barcode_input.focus();
+                            mark_error(barcode_row, '* Duplicate');
                         }
                         if (matching_fields.sku) {
-                            var sku_input = $("input#sku");
-                            sku_input.parents("tr").addClass("problem");
-                            sku_input.focus();
+                            mark_error(sku_row, '* Duplicate');
                         }
                     } else {
                         // no dupes
                         db.saveDoc(build_item_doc_from_form(doctoedit,form),
                             { success: function() {
-                                popup_cleanup(itemform);
+                                popup_cleanup(form_popup);
                                 initial_inventory_list();
                              }} );
                     }
@@ -168,7 +186,7 @@ function itemform(doctoedit) {
 
     form.children('input.cancel').bind('click',
         function(event) {
-            popup_cleanup(itemform);
+            popup_cleanup(form_popup);
             return false;
         }
     );

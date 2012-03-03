@@ -1,8 +1,8 @@
-function popup_dialog(html) {
+function popup_dialog(form) {
     var background = $("#popup_background");
 
-    html = '<div class="popup_dialog">' + html + '</div>';
-    var popup = $(html);
+    var popup =  $('<div class="popup_dialog"/>');
+    popup.append(form);
     $("body").append(popup);
 
     var windowWidth = document.documentElement.clientWidth;
