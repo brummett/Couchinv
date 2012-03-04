@@ -30,7 +30,7 @@ function build_item_activity() {
         // I guess couchDB can't really do a SQL-like query
         // we'll have to handle it in here :(
         var query = $("input#searchquery").val().toLowerCase();
-        db.view("couchinv/items-byname", {
+        db.view("couchinv/item-docs-by-name", {
             success: function(data) {
                 var matching = $.grep(data.rows, function(doc,idx) {
                     var value = doc.value;
@@ -61,7 +61,7 @@ function build_item_activity() {
 
 
 function initial_inventory_list() {
-    db.view("couchinv/items-byname", {
+    db.view("couchinv/item-docs-by-name", {
         success: function(data) {
             draw_item_list({ list: $("#itemslist"),
                              detail: $("#itemdetail"),
@@ -83,7 +83,7 @@ function itemform(doctoedit) {
         form.append('<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>');
     }
 
-    var formtable = $("<table/>");
+    var formtable = $('<table class="form"/>');
     form.append(formtable);
 
     var name_row = $('<tr><td class="prompt">Name</td>'

@@ -31,7 +31,7 @@ function build_customer_activity() {
 
     $("#submitsearch").click( function(event) {
         var query = $("input#searchquery").val().toLowerCase();
-        db.view('couchinv/customers-by_any_name?startkey="' + query + '"&endkey="'
+        db.view('couchinv/customer-docs-by-any-name?startkey="' + query + '"&endkey="'
                                                        + query + '\u9999"' ,
             { success: function(data) {
                 draw_item_list( {   list: $("#customerlist"),
@@ -56,7 +56,7 @@ function build_customer_activity() {
 }
 
 function initial_customer_list() {
-    db.view("couchinv/customers-by_any_name", {
+    db.view("couchinv/customer-docs-by-any-name", {
         success: function(data) {
            draw_item_list({ list: $("#customerlist"),
                             detail: $("#customerdetail"),
@@ -81,7 +81,7 @@ function customerform(doctoedit) {
                    + '<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>';
     }
 
-    formhtml = formhtml + '<table>'
+    formhtml = formhtml + '<table class="form">'
 	+ '<tr><td>First name</td>'
 	+ '<td><input name="firstname" type="text" id="firstname" value="'
 	    + (doctoedit ? doctoedit.firstname : '')
