@@ -1,36 +1,28 @@
-var db = $.couch.db("couchinv");
-
-var activity_names = [ 'Inventory Items', 'Customers', 'Warehouses', 'Receive Shipment' ];
-var activities = {
-    'Inventory Items': build_item_activity,
-    'Customers': build_customer_activity,
-    'Warehouses': build_warehouse_activity,
-    'Receive Shipment': build_receive_activity
-};
+var activities = [ { name: 'Home', url: 'index.html' },
+                   { name: 'Inventory Items', url: 'inventory_items.html' },
+                   { name: 'Customers', url: 'customers.html' },
+                   { name: 'Warehouses', url: 'warehouses.html' },
+                   { name: 'Receive Shipment', url: 'receive_shipment.html' }
+                ];
 
 function navigation_run () {
+
+    var loc = window.location;
+    var regex = new RegExp('\\w+\\.html$');
+    var this_page = regex.exec(loc.pathname);
+
     var html = '';
-    $.each(activity_names, function(index, name) {
-        html = html +'<div><a href="#" id="' + name + '">'
-                    + name + '</a></div>';
+    $.each(activities, function(index, act) {
+        html += '<div><span class="navigation';
+        if (this_page == act.url) {
+            html += ' current_activity">' + act.name;
+        } else {
+            html += '"><a href="' + act.url + '">' + act.name + '</a>';
+        }
+        html += '</span></div>';
     });
-    html = html + '</div>';
     $("#navigation").append(html);
     
-    $("#navigation a").bind('click', function(event) {
-        var target = $(event.target);
-        var name = target.attr('id');
-        if (target.hasClass("current_activity")) {
-            // Don't "follow" the link to the current event
-            event.preventDefault();
-            return false;
-        }
-        $("#navigation a").removeClass("current_activity");
-        target.addClass("current_activity")
-        var next_activity = activities[name];
-        next_activity();
-        return false;
-    });
 }
 
 $(document).ready(function() {
