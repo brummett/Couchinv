@@ -64,65 +64,50 @@ function initial_warehouse_list() {
 
 
 function warehouseform(doctoedit) {
-    var formhtml = '<h1>' + (doctoedit ? 'Edit' : 'Add') + ' Warehouse</h1>';
-    formhtml = formhtml + '<form name="updatewarehouse" id="updatewarehouse" action="">';
-
+    var fields = [{ type: 'text', id: 'name', label: 'Name',
+                    value: (doctoedit ? doctoedit.name : ''), validate: 'notblank'},
+                  { type: 'textarea', id: 'address', label: 'Address', rows: 4, cols: 40,
+                    value: (doctoedit ? doctoedit.address : '') },
+                  { type: 'text', id: 'phone', label: 'Phone',
+                    value: (doctoedit ? doctoedit.phone : '') },
+                  { type: 'textarea', id: 'notes', label: 'Notes', rows: 4, cols: 40,
+                    value: (doctoedit ? doctoedit.notes : '') }
+                ];
     if (doctoedit) {
-	// Editing an existing customer
-        formhtml = formhtml 
-                   + '<input name="docid" id="docid" type="hidden" value="' + doctoedit._id + '"/>';
+        fields.push({type: 'hidden', value: doctoedit._id, id: '_id'});
     }
-
-    formhtml = formhtml + '<table>'
-	+ '<tr><td>Name</td>'
-	+ '<td><input name="name" type="text" id="name" value="'
-	    + (doctoedit ? doctoedit.name : '')
-	    + '"/></td></tr>'
-
-	+ '<tr><td>Address</td>'
-	+ '<td><textarea name="address" id="address" rows="4" cols="40">'
-	    + (doctoedit ? doctoedit.address : '')
-	    + '</textarea></td></tr>'
-	
-	+ '<tr><td>Phone</td>'
-	+ '<td><input name="phonenumber" type="text" id="phonenumber" value="'
-	    + (doctoedit ? doctoedit.phonenumber : '')
-	    + '"/></td></tr>'
-
-	+ '<tr><td>Notes</td>'
-	+ '<td><textarea name="notes" id="notes" rows="4" cols="40">'
-	    + (doctoedit ? doctoedit.notes : '')
-	    + '</textarea></td></tr>'
-	+ '</table><input type="submit" name="submit" class="update" value="'
-	+ (doctoedit ? 'Update' : 'Add') + '"/>'
-	+ '<input type="submit" name="submit" class="cancel" value="Cancel"/></form>';
-
-    var dialog = popup_dialog(formhtml);
-    var form = dialog.children("form#updatewarehouse");
-    form.children("input.update").click( function(event) {
-        db.saveDoc(build_warehouse_doc_from_form(doctoedit, form),
-            { success: function() {
-                popup_cleanup(dialog);
-                initial_warehouse_list();
-             }});
-        return false;
-    });
-
-    form.children('input.cancel').click( function(event) {
-        popup_cleanup(dialog);
-        return false;
-    });
-    form.find("input#name").focus();
+    var form = new EditableForm({
+                        title: (doctoedit ? 'Edit' : 'Add') + ' Warehouse',
+                        fields: fields,
+                        modal: 1,
+                        buttons: [{ id: 'update',
+                                    label: (doctoedit ? 'Update' : 'Add'),
+                                    action: 'submit' },
+                                  { id: 'cancel',
+                                    label: 'Cancel',
+                                    action: 'remove' }
+                                ],
+                        submit: function(event) {
+                                    var theform = this;
+                                    db.saveDoc(build_warehouse_doc_from_form(doctoedit, form),
+                                        { success: function() {
+                                            theform.remove()
+                                            initial_warehouse_list();
+                                        }}
+                                    );
+                                    return false;
+                                }
+                    });
 }
 
 function build_warehouse_doc_from_form(doc,form) {
     if (!doc) {
-	doc = new Object;
+        doc = new Object;
     }
     var fields = ['name','address','phonenumber','notes'];
     for (var i in fields) {
         var fieldname = fields[i];
-        var formvalue = form.find("#" + fieldname).val();
+        var formvalue = form.valueFor(fieldname);
         if (formvalue == undefined) {
             formvalue = '';
         }
