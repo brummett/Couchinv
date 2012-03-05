@@ -1,6 +1,11 @@
 var customer_list_headers = [ { name: 'Name',
                             value: function(row) {
-                                       return row.value.lastname + ', ' + row.value.firstname;
+                                       if (row.value.lastname && row.value.firstname) {
+                                           return row.value.lastname + ', ' + row.value.firstname;
+                                        } else {
+                                            return row.value.firstname ? row.value.firstname
+                                                                        : row.value.lastname;
+                                        }
                                     },
                             cssclass: 'name' },
                           { name: 'Email',
