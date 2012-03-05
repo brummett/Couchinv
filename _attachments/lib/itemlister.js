@@ -111,16 +111,16 @@ function draw_item_list (spec, rows) {
                                          label: 'No, it\'s a mistake',
                                          action: 'remove' }
                                     ]
-                        });
-            popup.submit = function (event) {
+                            submit: function (event) {
                                 db.removeDoc(doc, { success: function() {
                                     target.parents("li.itemrow").remove();
                                     if (detail.attr('data-docid') == docid) {
                                         detail.empty();
                                     }
                                 }})
-                                popup.remove();
-            };
+                                return true;
+                            }
+                    });
 
         }});
         return false;

@@ -154,7 +154,6 @@ function itemform(doctoedit) {
                     // They're all unique.  Save the thing!
                     db.saveDoc(doctosave,
                         { success: function() {
-                            //popup_cleanup(form_popup);
                             form.remove();
                             initial_inventory_list();
                         }});

@@ -162,7 +162,9 @@ function EditableForm (params) {
         if (button['action'] == 'submit') {
             var submit_callback = (function (formobj) {
                                     return function (event) {
-                                        formobj.validate_inputs_then_submit(event);
+                                        if(formobj.validate_inputs_and_submit(event)) {
+                                            formobj.remove();
+                                        }
                                         return false;
                                     }
                                   })(editable_form);
@@ -212,7 +214,7 @@ EditableForm.prototype.markError = function(elt_id, reason) {
     table_row.find('.errortext').text(reason);
 }
 
-EditableForm.prototype.validate_inputs_then_submit = function(event) {
+EditableForm.prototype.validate_inputs_and_submit = function(event) {
     // Clear any previous errors
     $('.problem').removeClass('problem');
     $('.errortext').text('');
@@ -227,8 +229,10 @@ EditableForm.prototype.validate_inputs_then_submit = function(event) {
         }
     });
 
+
+    retval = is_valid;
     if (is_valid && this.submit) {
-        this.submit(event);
+        retval = this.submit(event);
     }
 
     return is_valid;
