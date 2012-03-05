@@ -122,12 +122,12 @@ form {
   background-color:#ddd;  
 }
 
-form tr td {
+table.form tr td {
     /* needed so when the 'problem' class gets turned on, it dosen't
         move the fields in the form */
     border:1px solid transparent; 
 }
-form tr.problem td {
+table.form tr.problem td {
     border:1px solid red;
 }
 
