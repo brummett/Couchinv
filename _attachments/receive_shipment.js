@@ -5,30 +5,54 @@ function build_receive_activity() {
     receive_shipment_form();
 }
 
+function autocomplete_couchdb_adapter(elt) {
+//    elt.getSuggestions = function
+}
+
+
 function receive_shipment_form (doctoedit) {
     var activity = $("#activity");
     activity.empty();
 
-    db.view("couchinv/warehouse-summary-byname",
-        { success: function(warehouse_data) {
+    // functions
+    var draw_receive_form, resolve_warehouse_select, get_customer_names;
 
-            var warehouse_select = '<select id="warehouseid">';
-            $.each(warehouse_data.rows, function(idx,row) {
-                warehouse_select = warehouse_select + '<option value="' + row['id'] + '"';
-                if (doctoedit && doctoedit.warehouseid == row['id']) {
-                    warehouse_select = warehouse_select + ' selected="selected"';
-                }
-                warehouse_select = warehouse_select + '>' + row['key'] + '</option>';
-            });
-            warehouse_select = warehouse_select + '</select>';
+    db.view("couchinv/customer-exists-by-any-name", { success: function(data) {
+        var customer_names = [];
+        var customer_ids = [];
+        $.each(data.rows, function(idx, row) {
+            customer_names.push(row['key']);
+            customer_ids.push(row['id']);
+        });
+       resolve_warehouse_select(customer_names, customer_ids);
+    }});
             
+    resolve_warehouse_select = function (customer_names, customer_ids) {
+        db.view("couchinv/warehouse-summary-byname",
+            { success: function(warehouse_data) {
+
+                var warehouse_select = '<select id="warehouseid">';
+                $.each(warehouse_data.rows, function(idx,row) {
+                    warehouse_select = warehouse_select + '<option value="' + row['id'] + '"';
+                    if (doctoedit && doctoedit.warehouseid == row['id']) {
+                        warehouse_select = warehouse_select + ' selected="selected"';
+                    }
+                    warehouse_select = warehouse_select + '>' + row['key'] + '</option>';
+                });
+                warehouse_select = warehouse_select + '</select>';
+                draw_receive_form(customer_names, customer_ids, warehouse_select);
+            }
+        });
+    };
+
+    draw_receive_form = function(customer_names, customer_ids, warehouse_select) {
             var now = new Date();
             var datestr = now.getFullYear() + '-'
                        + (now.getMonth() < 10 ? '0' : '') + now.getMonth() + '-'
                        + (now.getDate() < 10 ? '0' : '') + now.getDate();
 
             var formhtml = '<h1>' + (doctoedit ? 'Edit Received' : 'Receive') + ' Shipment</h1>'
-                + '<div id="orderdata"><table><tr><td>Date</td>'
+                + '<div id="orderdata"><table class="form"><tr><td>Date</td>'
                 + '<td><input name="date" id="date" type="text" value="'
                     + (doctoedit ? doctoedit.date : datestr)
                     + '"/></td></tr>'
@@ -36,11 +60,19 @@ function receive_shipment_form (doctoedit) {
                 + '<tr><td>Order number</td>'
                 + '<td><input name="ordernumber" id="ordernumber" type="text" value="'
                     + (doctoedit ? doctoedit.ordernumber : '')
-                    + '"/></td></tr>'
+                    + '"/><span class="errortext"/></td></tr>'
+
+                + '<tr><td>Shipped From</td>'
+                + '<td><input type="text" id="customername" value="'
+                    + (doctoedit ? doctoedit.customername : '')
+                    + '"/><span class="errortext"/></td></tr>'
 
                 + '<tr><td>Received to</td><td>' + warehouse_select + '</td></tr>'
 
                 + '</table></div>'
+
+                + '<input type="hidden" id="customerid" value="' + (doctoedit ? doctoedit.customerid : '' ) + '"/>'
+
                 + '<div id="scanitems"><form id="scanitems"><input type="text" id="itemscan"/>'
                     + '<input type="submit" value="Scan" id="submitscan"/></form></div>'
                 + '<div id="orderdetaildiv"><ul id="orderdetails" class="itemlist">'
@@ -49,6 +81,10 @@ function receive_shipment_form (doctoedit) {
 
             activity.append(formhtml);
             $("input#ordernumber").focus();
+
+            $("input#customername").autocomplete({ lookup: customer_names,
+                                  data: customer_ids,
+                                  onSelect: function(name,customer_id) { $("input#customerid").val(customer_id) } });
 
             var itemscan = $("input#itemscan");
             var itemdetails = $("ul#orderdetails");
@@ -156,6 +192,28 @@ function receive_shipment_form (doctoedit) {
             $("input#submitorder").click( function(event) {
                 // When the order is complete
 
+                var mark_error = function (row, text) {
+                    var text_space = row.find('.errortext');
+                    row.addClass("problem");
+                    text_space.text(text);
+                    row.children('input').focus();
+                };
+
+                var num_problems = 0;
+                var order_number = $("input#ordernumber").val();
+                if ((order_number == undefined) || (order_number == '')) {
+                    mark_error($("input#ordernumber").parents("tr"), 'Required');
+                    num_problems++;
+                }
+                var customer_name = $("input#customername").val();
+                if ((customer_name == undefined) || (customer_name == '')) {
+                    mark_error($("input#ordernumber").parents("tr"), 'Required');
+                    num_problems++;
+                }
+                if (num_problems) {
+                    return false;
+                }
+
                 var warehouse_id = $("select#warehouseid").val();
 
                 var popup_success = function () {
@@ -174,9 +232,10 @@ function receive_shipment_form (doctoedit) {
 
                     var receipt = new Object();
                     receipt.type = 'receive';
-                    receipt.order_number = $("input#ordernumber").val();
-                    receipt.warehouse_id = warehouse_id;
-                    receipt.from = '';  // FIXME need a ship-from field in the form
+                    receipt.ordernumber = $("input#ordernumber").val();
+                    receipt.warehouseid = warehouse_id;
+                    receipt.customerid = $("input#customerid").val();
+                    receipt.customername = $("input#customername").val();
                     receipt.date = $("input#date").val();
                     receipt.items = items_for_order;
                     db.saveDoc(receipt, { success: popup_success });
@@ -187,5 +246,5 @@ function receive_shipment_form (doctoedit) {
                 event.perventDefault();
             });
 
-    }});
+    };
 }
