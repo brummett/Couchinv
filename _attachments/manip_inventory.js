@@ -1,5 +1,3 @@
-var db = $.couch.db("couchinv");
-
 var item_list_headers = [ { name: 'Name',
                             value: function(row) { return row.value.name; },
                             cssclass: 'name' },

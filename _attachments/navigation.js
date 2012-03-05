@@ -1,3 +1,5 @@
+var db = $.couch.db("couchinv");
+
 var activities = [ { name: 'Home', url: 'index.html' },
                    { name: 'Inventory Items', url: 'inventory_items.html' },
                    { name: 'Customers', url: 'customers.html' },
