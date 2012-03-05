@@ -30,6 +30,18 @@
 
 function EditableForm (params) {
 
+    // A validator function that just makes sure there's _something_ in the field
+    function notblank_validator(formobj, input_id, input) {
+        if ((input.val() == undefined) || (input.val() == '')) {
+            return [0, '* Required'];
+        } else {
+            return true;
+        }
+    };
+
+    // The "validator" you get when you don't specify a validator, jsut return true
+    function true_validator() { return true; };
+
     this['title']  = (params['title'] ? params['title'] : 'Form');
     this['submit'] = (params['submit'] ? params['submit'] : function() {} );
 
@@ -143,9 +155,15 @@ function EditableForm (params) {
                 focus_element = input;
             }
             this.inputs[field['id']] = input;
-            this.validators[field['id']] = field['validate']
-                                            ? field['validate']
-                                            : function() { return [1] };
+
+            if (field.validate == 'notblank') {
+                this.validators[field.id] = notblank_validator;
+            } else if ((! field.validate) || (field.validate == 'true')) {
+                this.validators[field.id] = true_validator;
+            } else {
+                this.validators[field['id']] = field['validate'];
+            }
+
             this.tablerows[field['id']] = this_row_elt;
         }
     }
@@ -233,7 +251,10 @@ EditableForm.prototype.validate_inputs_and_submit = function(event) {
     var editable_form = this;
     $.each(this.validators, function(elt_id, callback) {
         var retval = callback(editable_form, elt_id, editable_form.inputs[elt_id]);
-        if (! retval[0]) {
+        if (retval == false) {
+            editable_form.markError(elt_id, ' * Invalid');
+            is_valid = 0;
+        } else if ((retval !== true) && ! retval[0]) {
             editable_form.markError(elt_id, retval[1]);
             is_valid = 0;
         }

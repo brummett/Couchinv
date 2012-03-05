@@ -73,30 +73,23 @@ function initial_inventory_list() {
 }
 
 function itemform(doctoedit) {
-    var simple_validate = function(formobj, input_id, input) {
-            if ((input.val() == undefined) || (input.val() == '')) {
-                return [0, '* Required'];
-            } else {
-                return [1];
-            }
-        };
     var fields = [ { type: 'text',
                      label: 'Name',
                      id: 'name',
                      value: (doctoedit ? doctoedit.name : ''),
-                     validate: simple_validate
+                     validate: 'notblank'
                    },
                    { type: 'text',
                      label: 'SKU',
                      id: 'sku',
                      value: (doctoedit ? doctoedit.sku : ''),
-                     validate: simple_validate
+                     validate: 'notblank'
                    },
                    { type: 'text',
                      label: 'Barcode',
                      id: 'barcode',
                      value: (doctoedit ? doctoedit.barcode : ''),
-                     validate: simple_validate
+                     validate: 'notblank'
                    },
                    { type: 'textarea',
                      label: 'Description',
