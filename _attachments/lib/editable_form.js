@@ -240,9 +240,8 @@ EditableForm.prototype.validate_inputs_and_submit = function(event) {
     });
 
 
-    retval = is_valid;
     if (is_valid && this.submit) {
-        retval = this.submit(event);
+        is_valid = this.submit(event);
     }
 
     return is_valid;
