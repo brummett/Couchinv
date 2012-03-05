@@ -128,7 +128,17 @@ function EditableForm (params) {
         this.table.append(this_row_elt);
 
         if (field.type != 'label') {
-            var input = this_row_elt.find(field.type == 'select' ? 'select' : 'input');
+            var input;
+            if (field.type == 'select') {
+                input = this_row_elt.find('select');
+            } else if (field.type == 'textarea') {
+                input = this_row_elt.find('textarea');
+            } else if (field.type == 'hidden') {
+                input = this_row_elt;
+            } else {
+                input = this_row_elt.find('input');
+            }
+ 
             if (field['focus'] || !focus_element) {
                 focus_element = input;
             }
