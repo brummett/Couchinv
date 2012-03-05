@@ -3,8 +3,9 @@
 // submit: function - called when the submit button is pressed and form validates
 // modal: bool - if true, it becomes a popup dialog in the center
 // parent: a JQuery element to append this form to
+// class: class to give to the encompassing div
 // fields: array
-//          {   type: (text, textarea, hidden, select)
+//          {   type: (text, textarea, hidden, select,label)
 //              label: string - text before the input
 //              id: string
 //              class: string
@@ -36,6 +37,10 @@ function EditableForm (params) {
     var buttons = (params['buttons'] ? params['buttons'] : []);
 
     this.containing_div = $('<div' + (params['modal'] ? ' class="popup_dialog"' : '') + '/>');
+    if(params['class']) {
+        this.containing_div.addClass(params['class']);
+    }
+
     this.form = $('<form ' + (params['id'] ? ('id="' + params['id'] + '"') : '' ) + '/>');
     this.containing_div.append(this.form);
 
@@ -106,6 +111,8 @@ function EditableForm (params) {
                             + ((val[1] == field.selected) ? 'selected="selected"' : '')
                             + '">' + val[0] + '</option>';
             });
+        } else if (field.type == 'label') {
+            // nothing special to do here
         }
 
        if (field.type != 'hidden') {
@@ -119,15 +126,18 @@ function EditableForm (params) {
         }
 
         this.table.append(this_row_elt);
-        input = this_row_elt.find(field.type == 'select' ? 'select' : 'input');
-        if (field['focus'] || !focus_element) {
-            focus_element = input;
+
+        if (field.type != 'label') {
+            var input = this_row_elt.find(field.type == 'select' ? 'select' : 'input');
+            if (field['focus'] || !focus_element) {
+                focus_element = input;
+            }
+            this.inputs[field['id']] = input;
+            this.validators[field['id']] = field['validate']
+                                            ? field['validate']
+                                            : function() { return [1] };
+            this.tablerows[field['id']] = this_row_elt;
         }
-        this.inputs[field['id']] = input;
-        this.validators[field['id']] = field['validate']
-                                        ? field['validate']
-                                        : function() { return [1] };
-        this.tablerows[field['id']] = this_row_elt;
     }
 
     this.buttons = [];
@@ -191,7 +201,9 @@ function EditableForm (params) {
         params['parent'].append(this.contaning_div);
     }
 
-    focus_element.focus();
+    if (focus_element) {
+        focus_element.focus();
+    }
 }
 
 EditableForm.prototype.markError = function(elt_id, reason) {
