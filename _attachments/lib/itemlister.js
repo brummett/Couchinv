@@ -96,28 +96,32 @@ function draw_item_list (spec, rows) {
         var target = $(event.target);
         var docid = target.attr('id');
         db.openDoc(docid, { success: function(doc) {
-            var popuphtml = '<h1>Confirm Remove</h1><p>Are you sure you want to delete '
-                    + removerid(doc) + '<p>'
-                    + '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
-                    + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
-            var popup = popup_dialog(popuphtml);
-            popup.addClass('warning');
+            var popup = new EditableForm({
+                            title: 'Confirm Remove',
+                            modal: 1,
+                            class: 'warning',
+                            fields: [ { type: 'label',
+                                        label: 'Are you sure you want to delete '
+                                                + removerid(doc) }
+                                    ],
+                            buttons: [ { id: 'remove',
+                                         label: 'Yes, remove it',
+                                         action: 'submit' },
+                                       { id: 'cancel',
+                                         label: 'No, it\'s a mistake',
+                                         action: 'remove' }
+                                    ]
+                        });
+            popup.submit = function (event) {
+                                db.removeDoc(doc, { success: function() {
+                                    target.parents("li.itemrow").remove();
+                                    if (detail.attr('data-docid') == docid) {
+                                        detail.empty();
+                                    }
+                                }})
+                                popup.remove();
+            };
 
-            $("input#Remove", popup).click( function(event) {
-                db.removeDoc(doc, { success: function() {
-                    target.parents("li.itemrow").remove();
-                    if (detail.attr('data-docid') == docid) {
-                        detail.empty();
-                    }
-                }});
-                popup_cleanup(popup);
-                return false;
-            });
-
-            $("input#Cancel", popup).click( function(event) {
-                popup_cleanup(popup);
-                return false;
-            });
         }});
         return false;
     });
