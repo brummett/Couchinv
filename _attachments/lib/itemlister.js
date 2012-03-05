@@ -110,7 +110,7 @@ function draw_item_list (spec, rows) {
                                        { id: 'cancel',
                                          label: 'No, it\'s a mistake',
                                          action: 'remove' }
-                                    ]
+                                    ],
                             submit: function (event) {
                                 db.removeDoc(doc, { success: function() {
                                     target.parents("li.itemrow").remove();
