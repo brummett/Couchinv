@@ -1,20 +1,4 @@
-var customer_list_headers = [ { name: 'Name',
-                            value: function(row) {
-                                       if (row.value.lastname && row.value.firstname) {
-                                           return row.value.lastname + ', ' + row.value.firstname;
-                                        } else {
-                                            return row.value.firstname ? row.value.firstname
-                                                                        : row.value.lastname;
-                                        }
-                                    },
-                            cssclass: 'name' },
-                          { name: 'Email',
-                            value: function(row) { return row.value.email; },
-                            cssclass: 'email' },
-                          { name: 'Phone',
-                            value: function(row) { return row.value.phonenumber; },
-                            cssclass: 'phone' },
-                        ];
+var customer_item_list;
 
 
 function build_customer_activity() {
@@ -34,19 +18,34 @@ function build_customer_activity() {
         return false;
     });
 
+    customer_item_list = new ItemLister({listContainer: $("#customerlist"),
+                                    detailContainer: $("#customerdetail"),
+                                    editor: customerform,
+                                    removerid: function(doc) {
+                                          return 'customer ' + doc.firstname + ' ' + doc.lastname;
+                                       },
+                                    headers: [ { name: 'Name', cssclass: 'name',
+                                                 value: function(row) {
+                                                        if (row.value.lastname && row.value.firstname) {
+                                                            return row.value.lastname + ', ' + row.value.firstname;
+                                                        } else {
+                                                            return row.value.firstname ? row.value.firstname
+                                                                                        : row.value.lastname;
+                                                        }
+                                                    }},
+                                                { name: 'Email', cssclass: 'email',
+                                                  value: function(row) { return row.value.email; }},
+                                                { name: 'Phone', cssclass: 'phone',
+                                                  value: function(row) { return row.value.phonenumber; }},
+                                        ]
+     });
+
     $("#submitsearch").click( function(event) {
         var query = $("input#searchquery").val().toLowerCase();
         db.view('couchinv/customer-docs-by-any-name?startkey="' + query + '"&endkey="'
                                                        + query + '\u9999"' ,
             { success: function(data) {
-                draw_item_list( {   list: $("#customerlist"),
-                                    detail: $("customerdetail"),
-                                    editor: customerform,
-                                    removerid: function(doc) {
-                                          return 'customer ' + doc.firstname + ' ' + doc.lastname;
-                                       },
-                                    headers: customer_list_headers
-                              }, data.rows);
+                customer_item_list.draw(data.rows);
         }});
         return false;
     });
@@ -63,14 +62,7 @@ function build_customer_activity() {
 function initial_customer_list() {
     db.view("couchinv/customer-docs-by-any-name", {
         success: function(data) {
-           draw_item_list({ list: $("#customerlist"),
-                            detail: $("#customerdetail"),
-                            editor: customerform,
-                            removerid: function(doc) {
-                                          return 'customer ' + doc.firstname + ' ' + doc.lastname;
-                                       },
-                            headers: customer_list_headers
-                        }, data.rows);
+           customer_item_list.draw( data.rows);
         }
     });
 }
