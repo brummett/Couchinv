@@ -95,6 +95,7 @@ function receive_shipment_form (doctoedit) {
                 var item_ident = typeof(item) == "object" ? item.barcode : item;
                 var item_name = typeof(item) == "object" ? item.name : '';
                 if (item_ident in items_for_order) {
+                    // Already in the order - bump up the count
                     items_for_order[item_ident]++;
                     thisli = itemdetails.find("#" + item_ident);
                     thisli.children('span.count').text(items_for_order[item_ident]);
@@ -105,19 +106,21 @@ function receive_shipment_form (doctoedit) {
                         + '<a href="#" class="decrement"><img src="images/down_arrow_blue.png" alt="decrement"></a>'
                         + '<a href="#" class="remove"><img src="images/delete_x_red.png" alt="remove"></a>'
                         + '</span><span class="count">1</span><span class="name">'
-                               + item_name + '</span><span>' + item_ident + '</span>');
+                               + item_name + '</span><span class="barcode">' + item_ident + '</span>');
 
                     itemdetails.append(thisli);
 
                     thisli.find('a.increment').click( function(event) {
-                        items_for_order[item_ident]++;
-                        thisli.children('span.count').text(items_for_order[item_ident]);
+                        var thisli = $(event.target).parents("li.itemrow:first");
+                        items_for_order[thisli.id]++;
+                        thisli.children('span.count').text(items_for_order[thisli.id]);
                         return false;
                     });
 
                     thisli.find('a.decrement').click(function (event) {
-                        items_for_order[item_ident]--;
-                        thisli.children('span.count').text(items_for_order[item_ident]);
+                        var thisli = $(event.target).parents("li.itemrow:first");
+                        items_for_order[thisli.id]--;
+                        thisli.children('span.count').text(items_for_order[thisli.id]);
                         return false;
                     });
 
@@ -144,8 +147,25 @@ function receive_shipment_form (doctoedit) {
                 }
 
                 if (typeof(item) != "object") {
+                    var update_li = (function(thisli) {
+                            return function(newdoc) {
+                                // Update the line to show the newly entered info
+                                // class name, barcode
+                                thisli.find(".name").text(newdoc.name);
+                                thisli.find(".barcode").text(newdoc.barcode);
+                                thisli.removeClass("unknown_item");
+                                thisli.unbind('click');
+
+                                var count = items_for_order[thisli.id];
+                                delete items_for_order[thisli.id];
+                                items_for_order[doc.barcode] = count;
+                                thisli.id = doc.barcode;
+                            };
+                    })(thisli);
+
                     thisli.addClass("unknown_item");
                     thisli.click( function(event) {
+                        var thisli = $(event.target).parents("li.itemrow:first");
                         // bring up the add/edit item popup
                         var newitem = {
                             barcode: item_ident,
@@ -153,7 +173,7 @@ function receive_shipment_form (doctoedit) {
                             sku: '',
                             desc: '',
                         };
-                        itemform(newitem);
+                        itemform(newitem, update_li);
                         return false;
                     });
                 }
