@@ -112,15 +112,15 @@ function receive_shipment_form (doctoedit) {
 
                     thisli.find('a.increment').click( function(event) {
                         var thisli = $(event.target).parents("li.itemrow:first");
-                        items_for_order[thisli.id]++;
-                        thisli.children('span.count').text(items_for_order[thisli.id]);
+                        items_for_order[thisli.attr('id')]++;
+                        thisli.children('span.count').text(items_for_order[thisli.attr('id')]);
                         return false;
                     });
 
                     thisli.find('a.decrement').click(function (event) {
                         var thisli = $(event.target).parents("li.itemrow:first");
-                        items_for_order[thisli.id]--;
-                        thisli.children('span.count').text(items_for_order[thisli.id]);
+                        items_for_order[thisli.attr('id')]--;
+                        thisli.children('span.count').text(items_for_order[thisli.attr('id')]);
                         return false;
                     });
 
@@ -150,16 +150,16 @@ function receive_shipment_form (doctoedit) {
                     var update_li = (function(thisli) {
                             return function(newdoc) {
                                 // Update the line to show the newly entered info
-                                // class name, barcode
                                 thisli.find(".name").text(newdoc.name);
                                 thisli.find(".barcode").text(newdoc.barcode);
                                 thisli.removeClass("unknown_item");
                                 thisli.unbind('click');
 
-                                var count = items_for_order[thisli.id];
-                                delete items_for_order[thisli.id];
-                                items_for_order[doc.barcode] = count;
-                                thisli.id = doc.barcode;
+                                // update the order record to track by the new item's barcode
+                                var count = items_for_order[thisli.attr('id')];
+                                delete items_for_order[thisli.attr('id')];
+                                items_for_order[newdoc.barcode] = count;
+                                thisli.attr('id') = newdoc.barcode;
                             };
                     })(thisli);
 
