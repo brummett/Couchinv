@@ -281,3 +281,7 @@ EditableForm.prototype.remove = function() {
     this.containing_div.fadeOut('fast');
     this.containing_div.remove();
 }
+
+EditableForm.prototype.cancel = function() {
+    // default is no action
+}

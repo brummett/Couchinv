@@ -17,7 +17,7 @@ function build_item_activity() {
     item_list = new ItemLister({
                        listContainer: $("#itemslist"),
                        detailContainer: $("#itemdetail"),
-                       editor: itemform,
+                       editor: function(doc) { itemform(doc,initial_inventory_list) },
                        removerid: function(doc) { return 'item ' + doc.name; },
                        headers: [ { name: 'Name',
                                     value: function(row) { return row.value.name; },
@@ -30,7 +30,7 @@ function build_item_activity() {
                     });
 
     $("a.add").bind('click', function(event) {
-        itemform();
+        itemform(null,initial_inventory_list);
         return false;
     });
 
@@ -70,7 +70,7 @@ function initial_inventory_list() {
     });
 }
 
-function itemform(doctoedit) {
+function itemform(doctoedit, next_action) {
     var fields = [ { type: 'text',
                      label: 'Name',
                      id: 'name',
@@ -116,41 +116,44 @@ function itemform(doctoedit) {
                               }]
                 });
 
-    form.submit = function(event) {
-        // Make sure the barcode and sku are unique
-        // 'this' here is the form object, since we're called from it's validate_inputs_then_submit()
-        var theform = this;
-        var query = '["' + theform.valueFor('barcode') + '","' + theform.valueFor('sku') + '"]';
+    form.submit = (function(next_action) {
+        return function(event) {
+            // Make sure the barcode and sku are unique
+            // 'this' here is the form object, since we're called from it's validate_inputs_then_submit()
+            var theform = this;
+            var query = '["' + theform.valueFor('barcode') + '","' + theform.valueFor('sku') + '"]';
         
-        db.view('couchinv/item-exists-by-sku-or-barcode?keys=' + query,
-            { success: function(data) {
-                var doctosave = build_item_doc_from_form(doctoedit,form);
-                var conflicting = {};
-                for (i in data.rows) {
-                    if (data.rows[i].id == doctosave['_id']) {
-                        continue;  // Can't conflict with ourselves
-                    }
-                    var conflicting_field = data.rows[i].value;
-                    var conflicting_value = data.rows[i].key;
-                    if (doctosave[conflicting_field] == conflicting_value) {
-                        // yes, it conflicts
-                        if (! conflicting[ conflicting_field ]++) {
-                            theform.markError(conflicting_field, '* Duplicate');
+            db.view('couchinv/item-exists-by-sku-or-barcode?keys=' + query,
+                { success: function(data) {
+                    var doctosave = build_item_doc_from_form(doctoedit,form);
+                    var conflicting = {};
+                    for (i in data.rows) {
+                        if (data.rows[i].id == doctosave['_id']) {
+                            continue;  // Can't conflict with ourselves
+                        }
+                        var conflicting_field = data.rows[i].value;
+                        var conflicting_value = data.rows[i].key;
+                        if (doctosave[conflicting_field] == conflicting_value) {
+                            // yes, it conflicts
+                            if (! conflicting[ conflicting_field ]++) {
+                                theform.markError(conflicting_field, '* Duplicate');
+                            }
                         }
                     }
+                    if ($.isEmptyObject(conflicting)) {
+                        // They're all unique.  Save the thing!
+                        db.saveDoc(doctosave,
+                            { success: function() {
+                                form.remove();
+                                next_action();
+                            }});
+                    }
                 }
-                if ($.isEmptyObject(conflicting)) {
-                    // They're all unique.  Save the thing!
-                    db.saveDoc(doctosave,
-                        { success: function() {
-                            form.remove();
-                            initial_inventory_list();
-                        }});
-                }
-            }
-        });
-        return false;
-    };
+            });
+        }
+    })(next_action);
+
+    return false;
 }
 
 function build_item_doc_from_form(doc,form) {
