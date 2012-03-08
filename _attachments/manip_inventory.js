@@ -1,11 +1,4 @@
-var item_list_headers = [ { name: 'Name',
-                            value: function(row) { return row.value.name; },
-                            cssclass: 'name' },
-                          { name: 'SKU',
-                            value: function(row) { return row.value.sku; }},
-                          { name: 'Barcode',
-                            value: function(row) { return row.value.barcode; }},
-                       ];
+var item_list;
 
 function build_item_activity() {
     var activity = $("#activity");
@@ -20,6 +13,21 @@ function build_item_activity() {
                         + '<div id="itemslist"></div>'
                         + '<div id="itemdetail"></div>'
                     + '</div>');
+
+    item_list = new ItemLister({
+                       listContainer: $("#itemslist"),
+                       detailContainer: $("#itemdetail"),
+                       editor: itemform,
+                       removerid: function(doc) { return 'item ' + doc.name; },
+                       headers: [ { name: 'Name',
+                                    value: function(row) { return row.value.name; },
+                                    cssclass: 'name' },
+                                  { name: 'SKU',
+                                    value: function(row) { return row.value.sku; }},
+                                  { name: 'Barcode',
+                                    value: function(row) { return row.value.barcode; }},
+                                ]
+                    });
 
     $("a.add").bind('click', function(event) {
         itemform();
@@ -39,12 +47,7 @@ function build_item_activity() {
                            || (value.barcode && (value.barcode.toString().toLowerCase().indexOf(query) > -1))
                            || (value.desc && (value.desc.toString().toLowerCase().indexOf(query) > -1));
                 });
-                draw_item_list({ list: $("#itemslist"),
-                                 detail: $("#itemdetail"),
-                                 editor: itemform,
-                                 removerid: function(doc) { return 'item ' + doc.name; },
-                                 headers: item_list_headers
-                               },matching);
+                item_list.draw(matching);
             }
         });
         return false;
@@ -62,12 +65,7 @@ function build_item_activity() {
 function initial_inventory_list() {
     db.view("couchinv/item-docs-by-name", {
         success: function(data) {
-            draw_item_list({ list: $("#itemslist"),
-                             detail: $("#itemdetail"),
-                             editor: itemform,
-                             removerid: function(doc) { return 'item ' + doc.name; },
-                             headers: item_list_headers
-                            }, data.rows);
+            item_list.draw(data.rows);
         }
     });
 }

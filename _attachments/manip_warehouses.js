@@ -1,12 +1,4 @@
-var warehouse_list_headers = [ { name: 'Name',
-                                 value: function(row) { return row.key },
-                                 cssclass: 'name' },
-                               { name: 'Items',
-                                 value: function(row) { return row.value.unique_items } },
-                               { name: 'Inventory',
-                                 value: function(row) { return row.value.total_items } }
-                        ];
-
+var warehouse_item_list;
 
 function build_warehouse_activity() {
     var activity = $("#activity");
@@ -20,6 +12,21 @@ function build_warehouse_activity() {
                         + '<input type="submit" value="Reset" id="resetsearch"></form></span></div>'
                     + '<div id="warehouselist"/><div id="warehousedetail"/>'
                     + '</div>');
+
+    warehouse_item_list = new ItemLister({
+                                    listContainer: $("#warehouselist"),
+                                    detailContainer: $("#warehousedetail"),
+                                    editor: warehouseform,
+                                    removerid: function(doc) { return doc.name; },
+                                    headers: [ { name: 'Name',
+                                                 value: function(row) { return row.key },
+                                                 cssclass: 'name' },
+                                               { name: 'Items',
+                                                 value: function(row) { return row.value.unique_items } },
+                                               { name: 'Inventory',
+                                                 value: function(row) { return row.value.total_items } }
+                                        ]
+                                })
     $("a.add").bind('click', function(event) {
         warehouseform();
         return false;
@@ -30,12 +37,7 @@ function build_warehouse_activity() {
         db.view('couchinv/warehouse-summary-byname?startkey="' + query + '"&endkey="'
                                                                + query + '\u9999"' ,
             { success: function(data) {
-                draw_item_list( {   list: $("#warehouselist"),
-                                    detail: $("warehousedetail"),
-                                    editor: customerform,
-                                    removerid: function(doc) { return doc.name; },
-                                    headers: warehouse_list_headers
-                              }, data.rows);
+                warehouse_item_list.draw(data.rows);
         }});
         return false;
     });
@@ -52,12 +54,7 @@ function build_warehouse_activity() {
 function initial_warehouse_list() {
     db.view("couchinv/warehouse-summary-byname", {
         success: function(data) {
-           draw_item_list({ list: $("#warehouselist"),
-                            detail: $("#warehousedetail"),
-                            editor: warehouseform,
-                            removerid: function(doc) { return doc.name },
-                            headers: warehouse_list_headers
-                        }, data.rows);
+           warehouse_item_list.draw(data.rows);
         }
     });
 }
