@@ -145,7 +145,7 @@ function itemform(doctoedit, next_action) {
                         db.saveDoc(doctosave,
                             { success: function() {
                                 form.remove();
-                                next_action();
+                                next_action(doctosave);
                             }});
                     }
                 }
