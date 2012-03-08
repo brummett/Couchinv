@@ -125,21 +125,22 @@ function receive_shipment_form (doctoedit) {
                     });
 
                     thisli.find('a.remove').click(function (event) {
-                        var popuphtml = '<h1>Confirm Remove</h1><p>Are you sure you want to delete '
-                                + (item_name ? item_name : item_ident) + ' from the order?</p>'
-                                +  '<input type="submit" name="submit" id="Remove" value="Yes, remove it"/>'
-                                + '<input type="submit" name="submit" id="Cancel" value="No, it\'s a mistake"/>';
-                        var popup = popup_dialog(popuphtml);
-                        popup.addClass('warning');
-                        $("input#Remove", popup).click( function(event) {
-                            delete items_for_order[item_ident];
-                            thisli.remove();
-                            popup_cleanup(popup);
-                            return false;
-                        });
-                        $("input#Cancel", popup).click( function(event) {
-                            popup_cleanup(popup);
-                            return false;
+                        var thisli = $(event.target).parents("li.itemrow:first");
+                        var popup = new EditableForm({
+                            title: 'Confirm Remove',
+                            modal: 1,
+                            class: 'warning',
+                            fields: [ { type: 'label',
+                                        label: 'Are you sure you want to remove '
+                                                + (item_name ? item_name : item_ident)
+                                                + ' from the order'} ],
+                            buttons: [ { id: 'remove', label: 'Yes, remove it', action: 'submit' },
+                                       { id: 'cancel', label: 'No, it\'s a mistake', action: 'remove'}],
+                            submit: function(event) {
+                                        delete items_for_order[thisli.attr('id')];
+                                        thisli.remove();
+                                        popup.remove();
+                                    }
                         });
 
                         return false;
