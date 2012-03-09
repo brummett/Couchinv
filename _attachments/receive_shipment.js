@@ -294,6 +294,7 @@ function receive_shipment_form (doctoedit) {
                             fields: [{type: 'label', label: 'Add some items to the order first'}],
                             buttons: [{ id: 'ok', label: 'Ok', action: 'remove'}]
                         });
+                    $("#orderdetails").addClass('problem');
                 }
 
                 var finish_saving_order = function () {
