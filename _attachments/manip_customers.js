@@ -14,13 +14,13 @@ function build_customer_activity() {
                     + '<div id="customerlist"/><div id="customerdetail"/>'
                     + '</div>');
     $("a.add").bind('click', function(event) {
-        customerform();
+        customerform(null, initial_customer_list);
         return false;
     });
 
     customer_item_list = new ItemLister({listContainer: $("#customerlist"),
                                     detailContainer: $("#customerdetail"),
-                                    editor: customerform,
+                                    editor: function(doc) { customerform(doc, initial_customer_list) },
                                     removerid: function(doc) {
                                           return 'customer ' + doc.firstname + ' ' + doc.lastname;
                                        },
@@ -68,7 +68,7 @@ function initial_customer_list() {
 }
 
 
-function customerform(doctoedit) {
+function customerform(doctoedit, next_action) {
     var fields = [  { type: 'text', label: 'First name', id: 'firstname', validate: 'notblank',
                       value: (doctoedit ? doctoedit.firstname : '') },
                     { type: 'text', label: 'Last name', id: 'lastname',
@@ -92,16 +92,24 @@ function customerform(doctoedit) {
                     buttons: [ { id: 'update', label: (doctoedit ? 'Update' : 'Add'), action: 'submit' },
                                { id: 'cancel', label: 'Cancel' , action: 'remove' },
                             ],
-                    submit: function(event) {
-                                var theform = this;
-                                db.saveDoc(build_customer_doc_from_form(doctoedit, theform),
-                                    { success: function() {
-                                        theform.remove();
-                                        initial_customer_list();
-                                    }}
-                                );
-                                return false;
-                            }
+                    submit: (function(next_action) {
+                                return function(event) {
+                                    var theform = this;
+                                    var doctosave = build_customer_doc_from_form(doctoedit, theform);
+                                    db.saveDoc(doctosave,
+                                        { success: (function(doctosave) {
+                                                return function() {
+                                                    theform.remove();
+                                                    if (next_action) {
+                                                        next_action(doctosave);
+                                                    }
+                                                }
+                                            })(doctosave)
+                                        }
+                                    );
+                                    return false;
+                                }
+                            })(next_action)
                 });
 }
 
