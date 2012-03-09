@@ -254,17 +254,14 @@ function receive_shipment_form (doctoedit) {
                 $('.problem').removeClass('problem');
                 $('.errortext').text('');
                 
-                var num_problems = 0;
                 var order_number = $("input#ordernumber").val();
                 if ((order_number == undefined) || (order_number == '')) {
                     // uniqueness check happens a little later
                     mark_error($("input#ordernumber").parents("tr"), 'Required');
-                    num_problems++;
                 }
                 var customer_name = $("input#customername").val();
                 if ((customer_name == undefined) || (customer_name == '')) {
                     mark_error($("input#customername").parents("tr"), 'Required');
-                    num_problems++;
                 } else {
                     if (! exists_in_list(customer_name, customer_names)) {
                         var text_space = mark_error($("input#customername").parents("tr"), "* Need info");
@@ -288,7 +285,6 @@ function receive_shipment_form (doctoedit) {
                                             customer_names.push(doc.lastname + ' ' + doc.firstname);
                                             validate_then_save_order(event) });
                         });
-                        num_problems++;
                     }
                 }
                 if (order_is_empty()) {
@@ -298,7 +294,6 @@ function receive_shipment_form (doctoedit) {
                             fields: [{type: 'label', label: 'Add some items to the order first'}],
                             buttons: [{ id: 'ok', label: 'Ok', action: 'remove'}]
                         });
-                    num_problems++;
                 }
 
                 var finish_saving_order = function () {
@@ -354,14 +349,16 @@ function receive_shipment_form (doctoedit) {
 
                 var order_number = $("input#ordernumber").val();
                 if (order_number) {
-                    verify_unique_order_number(order_number, finish_saving_order);
+                    // if there are already problems detected, then call verify_unique_order_number
+                    // only so it can highlite that row with a duplicate error
+                    // If there are no problems so far, then it can go ahead and finish saving if
+                    // the uniqueness check succeeds
+                    var next_action = $('.problem').length
+                                        ? function() { return false }
+                                        : finish_saving_order;
+                    verify_unique_order_number(order_number, next_action);
                 }
                 return false;
-                
-                if (num_problems || $('.problem').length) {
-                    return false;
-                }
-
             };
             $("input#submitorder").click(validate_then_save_order);
 
