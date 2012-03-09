@@ -91,18 +91,6 @@ function receive_shipment_form (doctoedit) {
             activity.append(formhtml);
             $("input#ordernumber").focus();
 
-            $("input#ordernumber").blur(function(event) {
-                var order_number = event.target.value;
-                if (order_number) {
-                    db.view('couchinv/order-exists-by-order-number?startkey="' + order_number + '"',
-                            { success: function(data) {
-                                if (data.rows.length) {
-                                    mark_error($(event.target).parents("tr"), "* Duplicate");
-                                }
-                            }});
-                }
-            });
-
             $("input#customername").autocomplete({ lookup: customer_names,
                                   data: customer_ids,
                                   onSelect: function(name,customer_id) { $("input#customerid").val(customer_id) } });
@@ -247,8 +235,8 @@ function receive_shipment_form (doctoedit) {
                 return text_space;
             };
 
-            var verify_unique_order_number = function(order_doc,next_action) {
-                db.view('couchinv/order-exists-by-order-number?startkey="' + order_doc.ordernumber + '"',
+            var verify_unique_order_number = function(ordernumber,next_action) {
+                db.view('couchinv/order-exists-by-order-number?key="' + ordernumber + '"',
                         { success: function(data) {
                             if (data.rows.length > 0) {
                                 mark_error($("input#ordernumber").parents("tr"), "* Duplicate");
@@ -259,7 +247,7 @@ function receive_shipment_form (doctoedit) {
                         }});
             };
 
-            var validate_and_save_order = function(event) {
+            var validate_then_save_order = function(event) {
                 // When the order is complete
 
                 // clear previous errors
@@ -269,7 +257,7 @@ function receive_shipment_form (doctoedit) {
                 var num_problems = 0;
                 var order_number = $("input#ordernumber").val();
                 if ((order_number == undefined) || (order_number == '')) {
-                    // uniqueness check happens on the blur event
+                    // uniqueness check happens a little later
                     mark_error($("input#ordernumber").parents("tr"), 'Required');
                     num_problems++;
                 }
@@ -298,7 +286,7 @@ function receive_shipment_form (doctoedit) {
                                             // put this person on the list so we don't have to re-hit the DB
                                             customer_names.push(doc.firstname + ' ' + doc.lastname);
                                             customer_names.push(doc.lastname + ' ' + doc.firstname);
-                                            validate_and_save_order(event) });
+                                            validate_then_save_order(event) });
                         });
                         num_problems++;
                     }
@@ -312,62 +300,70 @@ function receive_shipment_form (doctoedit) {
                         });
                     num_problems++;
                 }
+
+                var finish_saving_order = function () {
+                    var warehouse_id = $("select#warehouseid").val();
+    
+                    var popup_success = function () {
+                        var popup = new EditableForm({
+                                title: 'Shipment Recorded',
+                                modal: 1,
+                                buttons: [ { id: 'ok', label: 'Ok', action: 'submit' } ],
+                                submit: function(event) {
+                                    popup.remove();
+                                    // Back to the beginning.  This may be a memory leak!?
+                                    receive_shipment_form();
+                                }
+                            });
+                    };
+    
+                    var update_inventory = function (warehouse, items_for_order) {
+                        if (! warehouse.inventory) {
+                            warehouse.inventory = {};
+                        }
+                        for (var barcode in items_for_order) {
+                            if (!warehouse.inventory[barcode]) {
+                                warehouse.inventory[barcode] = items_for_order[barcode];
+                            } else {
+                                warehouse.inventory[barcode] += items_for_order[barcode];
+                            }
+                        }
+    
+                        var receipt = new Object();
+                        receipt.type = 'receive';
+                        receipt.ordernumber = $("input#ordernumber").val();
+                        receipt.warehouseid = warehouse_id;
+                        receipt.customerid = $("input#customerid").val();
+                        receipt.customername = $("input#customername").val();
+                        receipt.date = $("input#date").val();
+                        receipt.items = items_for_order;
+                        // save the updated warehouse and order receipt
+                        db.bulkSave({all_or_nothing:true, docs: [warehouse, receipt]},
+                             {  success: popup_success  });
+                    };
+    
+                    // We'll need the warehouse document
+                    db.openDoc( warehouse_id,
+                                { success: (function(items_for_order) {
+                                        return function(doc) {
+                                            update_inventory(doc, items_for_order);
+                                         }})(items_for_order)
+                                });
+                    return false;
+                };
+
+                var order_number = $("input#ordernumber").val();
+                if (order_number) {
+                    verify_unique_order_number(order_number, finish_saving_order);
+                }
+                return false;
                 
                 if (num_problems || $('.problem').length) {
                     return false;
                 }
 
-                var warehouse_id = $("select#warehouseid").val();
-
-                var popup_success = function () {
-                    var popup = new EditableForm({
-                            title: 'Shipment Recorded',
-                            modal: 1,
-                            buttons: [ { id: 'ok', label: 'Ok', action: 'submit' } ],
-                            submit: function(event) {
-                                popup.remove();
-                                // Back to the beginning.  This may be a memory leak!?
-                                receive_shipment_form();
-                            }
-                        });
-                };
-
-                var update_inventory = function (warehouse, items_for_order) {
-                    if (! warehouse.inventory) {
-                        warehouse.inventory = {};
-                    }
-                    for (var barcode in items_for_order) {
-                        if (!warehouse.inventory[barcode]) {
-                            warehouse.inventory[barcode] = items_for_order[barcode];
-                        } else {
-                            warehouse.inventory[barcode] += items_for_order[barcode];
-                        }
-                    }
-
-                    var receipt = new Object();
-                    receipt.type = 'receive';
-                    receipt.ordernumber = $("input#ordernumber").val();
-                    receipt.warehouseid = warehouse_id;
-                    receipt.customerid = $("input#customerid").val();
-                    receipt.customername = $("input#customername").val();
-                    receipt.date = $("input#date").val();
-                    receipt.items = items_for_order;
-                    // save the updated warehouse and order receipt
-                    db.bulkSave({all_or_nothing:true, docs: [warehouse, receipt]},
-                         {  success: popup_success  });
-                };
-
-                // We'll need the warehouse document
-                db.openDoc( warehouse_id,
-                            { success: (function(items_for_order) {
-                                    return function(doc) {
-                                        update_inventory(doc, items_for_order);
-                                     }})(items_for_order)
-                            });
-                return false;
             };
-            $("input#submitorder").click(validate_and_save_order);
+            $("input#submitorder").click(validate_then_save_order);
 
     };
 }
-
