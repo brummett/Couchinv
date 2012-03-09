@@ -208,6 +208,10 @@ function EditableForm (params) {
         } else {
             button_elt.click(button['action']);
         }
+
+        if (!focus_element) {
+            focus_element = button_elt;
+        }
     }
 
     if (params['modal']) {
