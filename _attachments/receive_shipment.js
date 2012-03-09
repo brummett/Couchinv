@@ -14,8 +14,17 @@ function receive_shipment_form (doctoedit) {
     var activity = $("#activity");
     activity.empty();
 
+    exists_in_list = function(item, list) {
+        for (var i in list) {
+            if (list[i] == item) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     // functions
-    var draw_receive_form, resolve_warehouse_select, get_customer_names;
+    var draw_receive_form, resolve_warehouse_select;
 
     db.view("couchinv/customer-exists-by-any-name", { success: function(data) {
         var customer_names = [];
@@ -102,6 +111,14 @@ function receive_shipment_form (doctoedit) {
             var itemdetails = $("ul#orderdetails");
 
             var items_for_order = {};  // keys are barcodes, values are how many
+            var order_is_empty = (function(items_for_order) {
+                                    return function() {
+                                        for (var k in items_for_order) {
+                                            return false;
+                                        }
+                                        return true;
+                                    }})(items_for_order);
+
             var add_to_order = function(item) {
                 var thisli;
                 var item_ident = typeof(item) == "object" ? item.barcode : item;
@@ -222,45 +239,109 @@ function receive_shipment_form (doctoedit) {
                 event.preventDefault();
             });
 
-            $("input#submitorder").click( function(event) {
+            var mark_error = function (row, text) {
+                var text_space = row.find('.errortext');
+                row.addClass("problem");
+                text_space.text(text);
+                row.children('input').focus();
+                return text_space;
+            };
+
+            var verify_unique_order_number = function(order_doc,next_action) {
+                db.view('couchinv/order-exists-by-order-number?startkey="' + order_doc.ordernumber + '"',
+                        { success: function(data) {
+                            if (data.rows.length > 0) {
+                                mark_error($("input#ordernumber").parents("tr"), "* Duplicate");
+                                return false;
+                            } else {
+                                next_action();
+                            }
+                        }});
+            };
+
+            var validate_and_save_order = function(event) {
                 // When the order is complete
 
-                var mark_error = function (row, text) {
-                    var text_space = row.find('.errortext');
-                    row.addClass("problem");
-                    text_space.text(text);
-                    row.children('input').focus();
-                };
-
+                // clear previous errors
+                $('.problem').removeClass('problem');
+                $('.errortext').text('');
+                
                 var num_problems = 0;
                 var order_number = $("input#ordernumber").val();
                 if ((order_number == undefined) || (order_number == '')) {
+                    // uniqueness check happens on the blur event
                     mark_error($("input#ordernumber").parents("tr"), 'Required');
                     num_problems++;
                 }
                 var customer_name = $("input#customername").val();
                 if ((customer_name == undefined) || (customer_name == '')) {
-                    mark_error($("input#ordernumber").parents("tr"), 'Required');
+                    mark_error($("input#customername").parents("tr"), 'Required');
+                    num_problems++;
+                } else {
+                    if (! exists_in_list(customer_name, customer_names)) {
+                        var text_space = mark_error($("input#customername").parents("tr"), "* Need info");
+                        text_space.click(function(event) {
+                            var customer_name = $("input#customername").val();
+                            var firstname, lastname;
+                            var space_pos = customer_name.indexOf(' ');
+                            if (space_pos == -1) {
+                                firstname = customer_name;
+                                lastname = '';
+                            } else {
+                                firstname = customer_name.substr(0,space_pos);
+                                lastname = customer_name.substr(space_pos+1);
+                            }
+                            customerform({firstname: firstname, lastname: lastname},
+                                        function(doc) { 
+                                            // called when they're done putting the info in
+                                            $("input#customername").parents("tr").removeClass('problem');
+                                            // put this person on the list so we don't have to re-hit the DB
+                                            customer_names.push(doc.firstname + ' ' + doc.lastname);
+                                            customer_names.push(doc.lastname + ' ' + doc.firstname);
+                                            validate_and_save_order(event) });
+                        });
+                        num_problems++;
+                    }
+                }
+                if (order_is_empty()) {
+                    new EditableForm({
+                            title: 'No Items',
+                            modal: 1,
+                            fields: [{type: 'label', label: 'Add some items to the order first'}],
+                            buttons: [{ id: 'ok', label: 'Ok', action: 'remove'}]
+                        });
                     num_problems++;
                 }
-                if (num_problems) {
+                
+                if (num_problems || $('.problem').length) {
                     return false;
                 }
 
                 var warehouse_id = $("select#warehouseid").val();
 
                 var popup_success = function () {
-                    var popup = popup_dialog('<h1>Shipment Recorded</h1><input id="ok" type="submit" value="Ok"/>');
-                    $(popup).find('input#ok').click( function (event) {
-                        event.preventDefault();
-                        popup_cleanup(popup);
-                        receive_shipment_form();  // Back to the beginning.  This may be a memory leak!?
-                    });
+                    var popup = new EditableForm({
+                            title: 'Shipment Recorded',
+                            modal: 1,
+                            buttons: [ { id: 'ok', label: 'Ok', action: 'submit' } ],
+                            submit: function(event) {
+                                popup.remove();
+                                // Back to the beginning.  This may be a memory leak!?
+                                receive_shipment_form();
+                            }
+                        });
                 };
 
-                var update_inventory = function (warehouse) {
-                    for (barcode in items_for_order) {
-                        warehouse.inventory[barcode] += items_for_order[barcode];
+                var update_inventory = function (warehouse, items_for_order) {
+                    if (! warehouse.inventory) {
+                        warehouse.inventory = {};
+                    }
+                    for (var barcode in items_for_order) {
+                        if (!warehouse.inventory[barcode]) {
+                            warehouse.inventory[barcode] = items_for_order[barcode];
+                        } else {
+                            warehouse.inventory[barcode] += items_for_order[barcode];
+                        }
                     }
 
                     var receipt = new Object();
@@ -271,13 +352,22 @@ function receive_shipment_form (doctoedit) {
                     receipt.customername = $("input#customername").val();
                     receipt.date = $("input#date").val();
                     receipt.items = items_for_order;
-                    db.saveDoc(receipt, { success: popup_success });
+                    // save the updated warehouse and order receipt
+                    db.bulkSave({all_or_nothing:true, docs: [warehouse, receipt]},
+                         {  success: popup_success  });
                 };
 
                 // We'll need the warehouse document
-                db.openDoc( warehouse_id, { success: update_inventory });
-                event.perventDefault();
-            });
+                db.openDoc( warehouse_id,
+                            { success: (function(items_for_order) {
+                                    return function(doc) {
+                                        update_inventory(doc, items_for_order);
+                                     }})(items_for_order)
+                            });
+                return false;
+            };
+            $("input#submitorder").click(validate_and_save_order);
 
     };
 }
+
