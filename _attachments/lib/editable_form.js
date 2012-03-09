@@ -52,11 +52,11 @@ function EditableForm (params) {
     if(params['class']) {
         this.containing_div.addClass(params['class']);
     }
+    this.containing_div.append( $('<h1>' + this['title'] + '</h1>') );
 
     this.form = $('<form ' + (params['id'] ? ('id="' + params['id'] + '"') : '' ) + '/>');
     this.containing_div.append(this.form);
 
-    this.form.append( $('<h1>' + this['title'] + '</h1>') );
     this.table = $('<table class="form"/>');
     this.form.append(this.table);
 
