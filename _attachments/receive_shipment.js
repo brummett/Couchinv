@@ -297,6 +297,16 @@ function receive_shipment_form (doctoedit) {
                     $("#orderdetails").addClass('problem');
                 }
 
+                if ($('.unknown_item').length) {
+                   new EditableForm({
+                            title: 'Unknown Items',
+                            modal: 1,
+                            fields: [{type: 'label', label: 'Some items are not yet known to the system'}],
+                            buttons: [{ id: 'ok', label: 'Ok', action: 'remove'}]
+                        });
+                    $("#orderdetails").addClass('problem');
+                }
+
                 var finish_saving_order = function () {
                     var warehouse_id = $("select#warehouseid").val();
     
@@ -354,7 +364,7 @@ function receive_shipment_form (doctoedit) {
                     // only so it can highlite that row with a duplicate error
                     // If there are no problems so far, then it can go ahead and finish saving if
                     // the uniqueness check succeeds
-                    var next_action = $('.problem').length
+                    var next_action = ($('.problem').length || $('.unknown_item').length)
                                         ? function() { return false }
                                         : finish_saving_order;
                     verify_unique_order_number(order_number, next_action);
