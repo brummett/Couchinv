@@ -82,6 +82,18 @@ function receive_shipment_form (doctoedit) {
             activity.append(formhtml);
             $("input#ordernumber").focus();
 
+            $("input#ordernumber").blur(function(event) {
+                var order_number = event.target.value;
+                if (order_number) {
+                    db.view('couchinv/order-exists-by-order-number?startkey="' + order_number + '"',
+                            { success: function(data) {
+                                if (data.rows.length) {
+                                    mark_error($(event.target).parents("tr"), "* Duplicate");
+                                }
+                            }});
+                }
+            });
+
             $("input#customername").autocomplete({ lookup: customer_names,
                                   data: customer_ids,
                                   onSelect: function(name,customer_id) { $("input#customerid").val(customer_id) } });
