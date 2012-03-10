@@ -28,15 +28,15 @@ function receive_shipment_form (doctoedit) {
 
     db.view("couchinv/customer-exists-by-any-name", { success: function(data) {
         var customer_names = [];
-        var customer_ids = [];
+        var customer_id_for_name = {};
         $.each(data.rows, function(idx, row) {
             customer_names.push(row['key']);
-            customer_ids.push(row['id']);
+            customer_id_for_name[row['key']] = row['id'];
         });
-       resolve_warehouse_select(customer_names, customer_ids);
+       resolve_warehouse_select(customer_names, customer_id_for_name);
     }});
             
-    resolve_warehouse_select = function (customer_names, customer_ids) {
+    resolve_warehouse_select = function (customer_names, customer_id_for_name) {
         db.view("couchinv/warehouse-summary-byname",
             { success: function(warehouse_data) {
 
@@ -49,12 +49,12 @@ function receive_shipment_form (doctoedit) {
                     warehouse_select = warehouse_select + '>' + row['key'] + '</option>';
                 });
                 warehouse_select = warehouse_select + '</select>';
-                draw_receive_form(customer_names, customer_ids, warehouse_select);
+                draw_receive_form(customer_names, customer_id_for_name, warehouse_select);
             }
         });
     };
 
-    draw_receive_form = function(customer_names, customer_ids, warehouse_select) {
+    draw_receive_form = function(customer_names, customer_id_for_name, warehouse_select) {
             var now = new Date();
             var datestr = now.getFullYear() + '-'
                        + (now.getMonth() < 10 ? '0' : '') + now.getMonth() + '-'
@@ -91,9 +91,7 @@ function receive_shipment_form (doctoedit) {
             activity.append(formhtml);
             $("input#ordernumber").focus();
 
-            $("input#customername").autocomplete({ lookup: customer_names,
-                                  data: customer_ids,
-                                  onSelect: function(name,customer_id) { $("input#customerid").val(customer_id) } });
+            $("input#customername").autocomplete({ lookup: customer_names });
 
             var itemscan = $("input#itemscan");
             var itemdetails = $("ul#orderdetails");
@@ -263,7 +261,7 @@ function receive_shipment_form (doctoedit) {
                 if ((customer_name == undefined) || (customer_name == '')) {
                     mark_error($("input#customername").parents("tr"), 'Required');
                 } else {
-                    if (! exists_in_list(customer_name, customer_names)) {
+                    if (! customer_id_for_name[customer_name]) {
                         var text_space = mark_error($("input#customername").parents("tr"), "* Need info");
                         text_space.click(function(event) {
                             var customer_name = $("input#customername").val();
@@ -339,8 +337,8 @@ function receive_shipment_form (doctoedit) {
                         receipt.type = 'receive';
                         receipt.ordernumber = $("input#ordernumber").val();
                         receipt.warehouseid = warehouse_id;
-                        receipt.customerid = $("input#customerid").val();
                         receipt.customername = $("input#customername").val();
+                        receipt.customerid = customer_id_for_name[receipt.customername];
                         receipt.date = $("input#date").val();
                         receipt.items = items_for_order;
                         // save the updated warehouse and order receipt
