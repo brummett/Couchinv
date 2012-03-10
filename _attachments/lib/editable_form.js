@@ -5,7 +5,7 @@
 // parent: a JQuery element to append this form to
 // class: class to give to the encompassing div
 // fields: array
-//          {   type: (text, textarea, hidden, select,label)
+//          {   type: (text, textarea, hidden, select,label,checkbox)
 //              label: string - text before the input
 //              id: string
 //              class: string
@@ -125,6 +125,13 @@ function EditableForm (params) {
             });
         } else if (field.type == 'label') {
             // nothing special to do here
+
+        } else if (field.type == 'checkbox') {
+            rowhtml += '<input type="checkbox" id="' + field.id + '"';
+            rowhtml += field.name ? (' name="' + field.name + '"') : '';
+            rowhtml += field.class ? (' class="' + field.class + '"') : '';
+            rowhtml += field.value ? ' checked="checked"' : '';
+            rowhtml += '</>'
         }
 
        if (field.type != 'hidden') {
@@ -275,7 +282,11 @@ EditableForm.prototype.validate_inputs_and_submit = function(event) {
 EditableForm.prototype.valueFor = function(elt_id) {
     var elt = this.inputs[elt_id];
     if (elt) {
-        return elt.val();
+        if (elt.attr('type') == 'checkbox') {
+            return elt.attr('checked');
+        } else {
+            return elt.val();
+        }
     }
     return undefined;
 };
