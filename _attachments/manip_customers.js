@@ -75,8 +75,12 @@ function customerform(doctoedit, next_action) {
                       value: (doctoedit ? doctoedit.lastname : '') },
                     { type: 'textarea', label: 'Address', id: 'address', rows: 4, cols: 40,
                       value: (doctoedit ? doctoedit.address : '') },
+                    { type: 'checkbox', label: 'Is taxable', id: 'istaxable',
+                        value: (doctoedit ? doctoedit.istaxable : '') },
                     { type: 'text', label: 'Phone number', id: 'phonenumber',
                       value: (doctoedit ? doctoedit.phonenumber : '') },
+                    { type: 'text', label: 'Alternate phone', id: 'alternatephone',
+                      value: (doctoedit ? doctoedit.alternatephone : '') },
                     { type: 'text', label: 'Email', id: 'email',
                       value: (doctoedit ? doctoedit.email : '') },
                     { type: 'textarea', label: 'Notes', id: 'notes', rows: 4, cols: 40,
@@ -117,7 +121,7 @@ function build_customer_doc_from_form(doc,form) {
     if (!doc) {
         doc = new Object;
     }
-    var fields = ['firstname','lastname','address','phonenumber','email','notes'];
+    var fields = ['firstname','lastname','address','phonenumber','email','notes','alternatephone','istaxable'];
     for (var i in fields) {
         var fieldname = fields[i];
         var formvalue = form.valueFor(fieldname);
