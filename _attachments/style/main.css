@@ -123,14 +123,27 @@ form {
   background-color:#ddd;  
 }
 
-table.form tr td {
-    /* needed so when the 'problem' class gets turned on, it dosen't
-        move the fields in the form */
-    border:1px solid transparent; 
+/* the parts of the item transaction form */
+div.orderwidget span {
+  display: inline-block;
+  width: 10em;
 }
-table.form tr.problem td {
-    border:1px solid red;
+
+div.orderwidget.invalid {
+    border: 1px solid red;
 }
+
+/* div.orderwidget.invalid span:first-child {
+    border-left: 2px solid red;
+}
+div.orderwidget.invalid span:last-child {
+    border-right: 2px solid red;
+}
+
+div.orderwidget.invalid span {
+    border-top:2px solid red;
+    border-bottom:2px solid red;
+} */
 
 div.avatar {
   padding:2px;
