@@ -457,7 +457,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
                     // found it by barcode
                     widget.__add(data.rows[0].value, how_many);
                 } else {
-                    db.view('couuchinv/items-by-sku?key="' + scan + '"',
+                    db.view('couchinv/items-by-sku?key="' + scan + '"',
                         { success: function(data) {
                             if (data.rows.length) {
                                 // found it by sku
