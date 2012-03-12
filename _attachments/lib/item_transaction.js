@@ -253,38 +253,48 @@ ItemTransactionForm.prototype.customerWidget = function(desc) {
             var customer_name = input.val();
             if((customer_name == undefined) || (customer_name == '')) {
                 this.__markError('* Required');
-            } else {
-                if (! self.customer_id_for_name[customer_name]) {
-                    var text_space = this.__markError('* Need Info');
-                    text_space.click(function(event) {
-                        var customer_name = input.val();
-                        var firstname, lastname;
-                        var space_pos = customer_name.indexOf(' ');
-                        if (space_pos == -1) {
-                            firstname = customer_name;
-                            lastname = '';
-                        } else {
-                            firstname = customer_name.substr(0,space_pos);
-                            lastname = customer_name.substr(space_pos + 1);
-                        }
-                        customerform({firstname: firstname, lastname: lastname},
-                                    function(doc) {
-                                        // When they're done putting info in
-                                        widget.removeClass('invalid');
-                                        // Put this person on the list so we don't have to re-hit the DB
-                                        var name = doc.firstname + ' ' + doc.lastname;
-                                        form.customer_names.push(name);
-                                        form.customer_id_for_name[name] = doc._id;
+                return false;
+            } else if (! self.customer_id_for_name[customer_name]) {
+                var text_space = this.__markError('* Need Info');
+                text_space.click(function(event) {
+                    var customer_name = input.val();
+                    var firstname, lastname;
+                    var space_pos = customer_name.indexOf(' ');
+                    if (space_pos == -1) {
+                        firstname = customer_name;
+                        lastname = '';
+                    } else {
+                        firstname = customer_name.substr(0,space_pos);
+                        lastname = customer_name.substr(space_pos + 1);
+                    }
+                    customerform({firstname: firstname, lastname: lastname},
+                                function(doc) {
+                                    // When they're done putting info in
+                                    widget.removeClass('invalid');
+                                    // Put this person on the list so we don't have to re-hit the DB
+                                    var name;
+                                    if (doc.firstname && doc.lastname) {
                                         name = doc.lastname + ' ' + doc.firstname;
                                         form.customer_names.push(name);
                                         form.customer_id_for_name[name] = doc._id;
-                                        // Clear the error 
-                                        text_space.text('');
-                                        widget.removeClass('invalid');
-                                    });
-                    });
-                }
+
+                                        name = doc.firstname + ' ' + doc.lastname;
+                                        form.customer_names.push(name);
+                                        form.customer_id_for_name[name] = doc._id;
+                                    } else {
+                                        name = doc.firstname ? doc.firstname : doc.lastname;
+                                        form.customer_names.push(name);
+                                        form.customer_id_for_name[name] = doc._id;
+                                    }
+                                    input.val(name);  // update the text input
+                                    // Clear the error 
+                                    text_space.text('');
+                                    widget.removeClass('invalid');
+                                });
+                });
+                return false;
             }
+            return true;
         }
     })(this,widget,input);
 
