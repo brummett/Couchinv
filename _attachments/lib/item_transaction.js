@@ -28,9 +28,6 @@ function ItemTransactionForm (params) {
     this.widget = {};
     this.input = {};
 
-    this.populate_customers();
-    this.populate_warehouses();
-
     this.layoutWidgets();
 }
 
@@ -109,23 +106,37 @@ ItemTransactionForm.prototype.validateInputs = function(inputs) {
     
 
 
-ItemTransactionForm.prototype.populate_customers = function() {
+ItemTransactionForm.prototype.populateCustomersThen = function(next_action) {
+    if (this.is_populating_customer_names) {
+        this.customer_names_actions.push(next_action);
+        return false;
+
+    } else if (this.customer_names) {
+        next_action();
+        return false;
+    }
+
     this.customer_names = [];
     this.customer_id_for_name = {};
-    var populator = (function(self) {
+    var populator = (function(self,next_action) {
         return function(data) {
             for (var i in data.rows) {
                 var row = data.rows[i];
                 self.customer_names.push(row.key);
                 self.customer_id_for_name[row.key] = row.id;
             }
+            if (next_action) {
+                next_action();
+            }
         }
-    })(this);
+    })(this, next_action);
     db.view("couchinv/customer-exists-by-any-name",
             { success: populator });
 };
 
-ItemTransactionForm.prototype.populate_warehouses = function() {
+ItemTransactionForm.prototype.populateWarehousesThen = function(next_action) {
+    if (this.warehouse_names.length)
+
     this.warehouse_names = [];
     this.warehouse_id_for_name = {};
     var populator = (function(self) {
@@ -224,14 +235,34 @@ ItemTransactionForm.prototype.warehouseWidget = function(desc) {
 
 ItemTransactionForm.prototype.customerWidget = function(desc) {
     var id = (desc.id || desc.label);
+    var self = this;
+
     var widget = $('<div class="customerwidget"><span>' + (desc.label || '')
                     + '</span><span><input type="text" id="' + id
                     + '" value="' + (desc.value || '')
                     + '"/></span><span class="errortext"/></span></div>');
     var input = $('input', widget);
-    input.autocomplete({ lookup: this.customer_names });
 
-    var self = this;
+    this.customer_names = [];
+    this.customer_id_for_name = {};
+    var populator = (function(self) {
+        return function(data) {
+            var customer_names = [], customer_id_for_name = {};
+            for (var i in data.rows) {
+                var row = data.rows[i];
+                customer_names.push(row.key);
+                customer_id_for_name[row.key] = row.id;
+            }
+            self.customer_names = customer_names;
+            self.customer_id_for_name = customer_id_for_name;
+            input.autocomplete({ lookup: customer_names });
+        }
+    })(self);
+
+    if (! this.customerLoader) {
+        this.customerLoader = new DeferredViewAction('couchinv/customer-exists-by-any-name');
+    }
+    this.customerLoader.enqueue(populator);
 
     widget.__validate = (function(form,widget,input) {
         return function() {
