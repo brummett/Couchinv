@@ -93,6 +93,7 @@ div#activity {
 
 .itemrow span {
   display: inline-block;
+  width: 20%;
 }
 
 .itemrow span.editremove {
@@ -198,19 +199,19 @@ div.avatar img {
   margin: 100px;
 }
 
-ul#orderdetails li {
+div.itemlistwidget ul li {
   border-bottom:1px solid black;
   padding:4px;
   margin: 4px;
   list-style-type:none
 }
 
-ul#orderdetails span {
+div.itemlistwidget ul span {
   display: inline-block;
   width: 20%;
 }
 
-ul#orderdetails img {
+div.itemlistwidget ul img {
   padding-top: 0.2em;
   padding-left: 0.4em;
   padding-right: 0.4em;
@@ -218,7 +219,7 @@ ul#orderdetails img {
   height: 1.2em;
 }
 
-ul#orderdetails li.unknown_item {
+div.itemlistwidget ul li.unknown_item {
   background-color: #FF5050;
 }
 
