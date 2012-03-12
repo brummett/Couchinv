@@ -125,7 +125,7 @@ ItemTransactionForm.prototype.dateWidget = function(desc) {
                + (now.getDate() < 10 ? '0' : '') + now.getDate();
     }
 
-    var widget = $('<div class="datewidget"><span>' + (desc.label || '')
+    var widget = $('<div class="orderwidget datewidget"><span>' + (desc.label || '')
                     + '</span><span><input type="text" id="' + id
                     + '" value="' + datestr + '"/></span><span class="errortext"/></div>');
     var input = $('input', widget);
@@ -149,7 +149,7 @@ ItemTransactionForm.prototype.dateWidget = function(desc) {
 
 ItemTransactionForm.prototype.textWidget = function(desc) {
     var id = (desc.id || desc.label);
-    var widget = $('<div class="textwidget"><span>'  + (desc.label || '')
+    var widget = $('<div class="orderwidget textwidget"><span>'  + (desc.label || '')
                     + '</span><span><input type="text" id="' + id
                     + '" value="' + (desc.value || '') + '"/></span><span class="errortext"/></div>');
     var input = $('input', widget);
@@ -178,7 +178,7 @@ ItemTransactionForm.prototype.warehouseWidget = function(desc) {
     var id = (desc.id || desc.label);
     var self = this;
 
-    var widget = $('<div class="warehousewidget"><span>'
+    var widget = $('<div class="orderwidget warehousewidget"><span>'
                     + (desc.label || '') + '</span><span><select id="' + id + '/></span>'
                     + '<span class="errortext"/></div>');
     var select = $('select', widget);
@@ -221,7 +221,7 @@ ItemTransactionForm.prototype.customerWidget = function(desc) {
     var id = (desc.id || desc.label);
     var self = this;
 
-    var widget = $('<div class="customerwidget"><span>' + (desc.label || '')
+    var widget = $('<div class="orderwidget customerwidget"><span>' + (desc.label || '')
                     + '</span><span><input type="text" id="' + id
                     + '" value="' + (desc.value || '')
                     + '"/></span><span class="errortext"/></span></div>');
@@ -305,7 +305,7 @@ ItemTransactionForm.prototype.customerWidget = function(desc) {
 
 ItemTransactionForm.prototype.scanboxWidget = function(desc) {
     var id = (desc.id || desc.label);
-    var widget = $('<div cpass="scanboxwidget"><span><form><input type="text" id="' + id + '"/>'
+    var widget = $('<div cpass="orderwidget scanboxwidget"><span><form><input type="text" id="' + id + '"/>'
                     + '<input type="submit" value="Scan"/></form></span><span class="errortext"></div>');
     var input = $('input[type="text"]', widget);
 
@@ -330,7 +330,7 @@ ItemTransactionForm.prototype.scanboxWidget = function(desc) {
 
 ItemTransactionForm.prototype.labelWidget = function(desc) {
     var id = (desc.id || desc.label);
-    var widget = $('<div class="labelwidget"><span id="' + id + '">' + (desc.label || '')
+    var widget = $('<div class="orderwidget labelwidget"><span id="' + id + '">' + (desc.label || '')
             + '</span><span class="errortext"/></div>');
 
     widget.__validate = function() { return true; };
@@ -341,7 +341,7 @@ ItemTransactionForm.prototype.labelWidget = function(desc) {
 
 ItemTransactionForm.prototype.buttonWidget = function(desc) {
     var id = (desc.id || desc.label);
-    var widget = $('<div class="buttonwidget"><input type="submit" id="'
+    var widget = $('<div class="orderwidget buttonwidget"><input type="submit" id="'
                     + id + '" value="' + desc.label + '"/></div>');
     var input = $('input', widget);
 
@@ -367,7 +367,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     var modifiable = desc.modifiable; // include inc/dec/remove buttons
 
     var id = (desc.id || desc.label);
-    var widget = $('<div class="itemlistwidget"><ul><lh class="itemrow">'
+    var widget = $('<div class="orderwidget itemlistwidget"><ul><lh class="itemrow">'
                 + (modifiable ? '<span/>' : '')  // column for the inc/dev/remove buttons
                 + '<span>Count</span><span>Name</span><span>Scan</span></lh></ul></div>');
 
