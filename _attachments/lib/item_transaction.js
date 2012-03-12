@@ -288,6 +288,8 @@ ItemTransactionForm.prototype.scanboxWidget = function(desc) {
     var submit = (function(self,action,input) {
         return function(event) {
             action(event,input.val(), self);
+            input.val('');
+            input.focus();
             return false;
         }
     })(this, action, input);
