@@ -12,7 +12,9 @@ function receive_shipment_form(doctoedit, next_action) {
 
     var itemlist;
     var scanaction = function(event, scan, form) {
-        form.widget.itemlist.__add_scan(scan);
+        if (scan.length) {
+            form.widget.itemlist.__add_scan(scan);
+        }
     };
 
     var form, submit_form_1, submit_form_2;
