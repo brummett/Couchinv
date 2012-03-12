@@ -36,7 +36,9 @@ function receive_shipment_form(doctoedit, next_action) {
                         form.widget.ordernumber.__markError('* Duplicate');
                         return false;
                     } else {
-                        submit_form_2();
+                        if (form.isValid()) {
+                            submit_form_2();
+                        }
                     }
                 }}
             );
@@ -71,7 +73,7 @@ function receive_shipment_form(doctoedit, next_action) {
                                     });
                 }}
              );
-        };
+        }
     })(next_action);
 
     form = new ItemTransactionForm({

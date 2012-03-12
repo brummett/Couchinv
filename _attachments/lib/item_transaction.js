@@ -96,6 +96,10 @@ ItemTransactionForm.prototype.layoutWidgets = function() {
     return div;
 }
 
+ItemTransactionForm.prototype.isValid = function() {
+    return this.containing_div.find('.invalid').length ? false : true;
+}
+
 ItemTransactionForm.prototype.validateInputs = function(inputs) {
     if ((! inputs) || (! inputs.length)) {
         inputs = [];
