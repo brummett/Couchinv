@@ -82,7 +82,11 @@ ItemTransactionForm.prototype.layoutWidgets = function() {
                 this.addClass('invalid');
                 var text_space = this.find('span.errortext');
                 text_space.text(text);
-                this.__input.focus();
+                var input = this.__input();
+                if ('focus' in input) {
+                    // only text inputs can be focused, not the item list
+                    input.focus();
+                }
                 return text_space;
             };
                 
