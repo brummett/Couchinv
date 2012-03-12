@@ -426,6 +426,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     };
 
     widget.__onNewLine = function(li,thing) {
+        var self = this;
         if (typeof(thing) != 'object') {
             li.addClass('unknown_item');
             li.click( function(event) {
