@@ -38,6 +38,7 @@ ItemTransactionForm.prototype.draw = function(container) {
 ItemTransactionForm.prototype.layoutWidgets = function() {
     var div = $('<div class="item_transaction"><h1>' + this.title + '<h1></div>');
     this.containing_div = div;
+    var self = this;
 
     for (var i in this.layout) {
         var layout = this.layout[i];
@@ -71,7 +72,11 @@ ItemTransactionForm.prototype.layoutWidgets = function() {
         }
         if (widget) {
             widget.__input = function() {
-                return widget.find('[id]');
+                for (id in self.widget) {
+                    if (self.widget[id] === this) {
+                        return self.input[id];
+                    }
+                }
             };
             widget.__markError = function (text) {
                 this.addClass('invalid');
