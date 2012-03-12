@@ -76,7 +76,7 @@ function receive_shipment_form(doctoedit, next_action) {
         title: (doctoedit ? 'Edit Received' : 'Receive') + ' Shipment',
         layout: [ { type: 'date', label: 'Date', id: 'date',
                     value: (doctoedit ? doctoedit.date : undefined) },
-                  { type: 'text', label: 'Order number', id: 'ordernumber',
+                  { type: 'text', label: 'Order number', id: 'ordernumber', required: true,
                     value: (doctoedit ? doctoedit.ordernumber : '') },
                   { type: 'customer', label: 'Shipped from', id: 'shiporigin',
                     value: (doctoedit ? doctoedit.shiporigin : '') },
