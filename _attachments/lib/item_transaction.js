@@ -465,6 +465,14 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
         );
     };
 
+    widget.__delete = function(thing) {
+        var item_ident = typeof(thing) == "object" ? thing.barcode : thing;
+
+        if (item_ident in items_in_list) {
+            delete items_in_list[item_ident];
+            ul.find('li[data-item-ident="' + item_ident + '"]').remove();
+        }
+    }
 
     widget.__add = function(thing, how_many) {
         var item_ident, item_name;
@@ -513,7 +521,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
                             buttons: [ { id: 'remove', label: 'Yes, remove it', action: 'submit' },
                                        { id: 'cancel', label: 'No, it\'s a mistake', action: 'remove'}],
                             submit: function(event) {
-                                    self.__delete();
+                                    self.__delete(new_li.attr('data-item-ident'));
                                     popup.remove();
                                 }
                     });
