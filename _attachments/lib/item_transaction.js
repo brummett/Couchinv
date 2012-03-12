@@ -422,14 +422,14 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
         if (typeof(thing) != 'object') {
             li.addClass('unknown_item');
             li.click( function(event) {
-                var newitem = { barcode: item_ident, name: '', sku: '', desc: '' };
+                var newitem = { barcode: thing, name: '', sku: '', desc: '' };
                 itemform(newitem, function(doc) { self.__updateUnknownLine(li, doc) });
             });
         }
     };
 
     widget.__subtract = function(thing, how_many) {
-        var item_ident = typeof(thing) == object ? thing.barcode : thing;
+        var item_ident = typeof(thing) == 'object' ? thing.barcode : thing;
         if (how_many == undefined) {
             how_many = 1;
         }
@@ -450,8 +450,8 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
         }
 
         if (typeof(thing) == "object") {
-            item_ident = item.barcode;
-            item_name = item.name;
+            item_ident = thing.barcode;
+            item_name = thing.name;
         } else {
             item_ident = thing;
             item_name = '';
