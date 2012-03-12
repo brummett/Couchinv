@@ -33,7 +33,7 @@ function receive_shipment_form(doctoedit, next_action) {
             db.view('couchinv/order-exists-by-order-number?key="' + ordernumber+ '"',
                 { success: function(data) {
                     if (data.rows.length > 0) {
-                        self.widget.ordernumber.__markError('* Duplicate');
+                        form.widget.ordernumber.__markError('* Duplicate');
                         return false;
                     } else {
                         submit_form_2();
