@@ -78,7 +78,7 @@ function receive_shipment_form(doctoedit, next_action) {
                     value: (doctoedit ? doctoedit.date : undefined) },
                   { type: 'text', label: 'Order number', id: 'ordernumber', required: true,
                     value: (doctoedit ? doctoedit.ordernumber : '') },
-                  { type: 'customer', label: 'Shipped from', id: 'shiporigin',
+                  { type: 'customer', label: 'Shipped from vendor', id: 'shiporigin',
                     value: (doctoedit ? doctoedit.shiporigin : '') },
                   { type: 'warehouse', label: 'Received to', id: 'shipdestination',
                     value: (doctoedit ? doctoedit.shipdestination : undefined) },
