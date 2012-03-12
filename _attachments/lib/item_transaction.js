@@ -211,6 +211,7 @@ ItemTransactionForm.prototype.warehouseWidget = function(desc) {
     }
     this.warehouseLoader.enqueue(populator);
 
+    widget.__validate = function() { return true;};
     this.widget[id] = widget;
     this.input[id] = select;
     return widget;
