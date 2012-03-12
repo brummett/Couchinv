@@ -99,8 +99,8 @@ ItemTransactionForm.prototype.layoutWidgets = function() {
 ItemTransactionForm.prototype.validateInputs = function(inputs) {
     if ((! inputs) || (! inputs.length)) {
         inputs = [];
-        for (var k in this.widgets) {
-            inputs.push(this.widgets[k]);
+        for (var k in this.widget) {
+            inputs.push(this.widget[k]);
         }
     }
 
@@ -383,7 +383,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
                                         title: title,
                                         modal: 1,
                                         fields: [{type: 'label', label: message }],
-                                        butons: [{id: 'ok', label: 'Ok', action: 'remove'}]
+                                        buttons: [{id: 'ok', label: 'Ok', action: 'remove'}]
                                     });
                                     return false;
                                 } else {
