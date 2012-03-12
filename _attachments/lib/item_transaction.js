@@ -105,53 +105,6 @@ ItemTransactionForm.prototype.validateInputs = function(inputs) {
 }
     
 
-
-ItemTransactionForm.prototype.populateCustomersThen = function(next_action) {
-    if (this.is_populating_customer_names) {
-        this.customer_names_actions.push(next_action);
-        return false;
-
-    } else if (this.customer_names) {
-        next_action();
-        return false;
-    }
-
-    this.customer_names = [];
-    this.customer_id_for_name = {};
-    var populator = (function(self,next_action) {
-        return function(data) {
-            for (var i in data.rows) {
-                var row = data.rows[i];
-                self.customer_names.push(row.key);
-                self.customer_id_for_name[row.key] = row.id;
-            }
-            if (next_action) {
-                next_action();
-            }
-        }
-    })(this, next_action);
-    db.view("couchinv/customer-exists-by-any-name",
-            { success: populator });
-};
-
-ItemTransactionForm.prototype.populateWarehousesThen = function(next_action) {
-    if (this.warehouse_names.length)
-
-    this.warehouse_names = [];
-    this.warehouse_id_for_name = {};
-    var populator = (function(self) {
-            return function(data) {
-                for (var i in data.rows) {
-                    var row = data.rows[i];
-                    self.warehouse_names.push(row.key);
-                    self.warehouse_id_for_name[row.key] = row.id;
-                }
-            }
-        })(this);
-        db.view("couchinv/warehouse-summary-byname",
-               { success: populator});
-};
-
 ItemTransactionForm.prototype.dateWidget = function(desc) {
     var id = (desc.id || desc.label);
 
@@ -214,20 +167,41 @@ ItemTransactionForm.prototype.textWidget = function(desc) {
 
 ItemTransactionForm.prototype.warehouseWidget = function(desc) {
     var id = (desc.id || desc.label);
-    var widgethtml = '<div class="warehousewidget"><span>'
-                    + (desc.label || '') + '</span><span><select id="' + id + '>';
+    var self = this;
+
+    var widget = $('<div class="warehousewidget"><span>'
+                    + (desc.label || '') + '</span><span><select id="' + id + '/></span>'
+                    + '<span class="errortext"/></div>');
+    var select = $('select', widget);
 
     var current_warehouseid = desc.value;
-    for (var wh_id in this.warehouse_id_for_name) {
-        var name = this.warehouse_id_for_name[wh_id];
-        widgethtml += '<option value="' + wh_id + '"'
-                   + ( current_warehouseid == wh_id ? ' selected="selected"' : '')
-                   + '>' + name + '</option>';
-    }
-    widgethtml += '</select></span><span class="errortext"/></div>';
 
-    var widget = $(widgethtml);
-    var select = $('select', widget);
+    this.warehouse_names = [];
+    this.warehouse_id_for_name = {};
+    var populator = (function(self,select,current_warehouseid) {
+            return function(data) {
+                var warehouse_names = [], warehouse_id_for_name = {};
+                for (var i in data.rows) {
+                    var row = data.rows[i];
+                    var wh_name = row.key;
+                    var wh_id = row.id;
+                    warehouse_names.push(wh_name);
+                    warehouse_id_for_name[wh_name] = wh_id
+                    var option = $('<option value="' + wh_id + '"'
+                                    + (current_warehouseid == wh_id ? ' selected="selected"' : '')
+                                    + '>' + wh_name + '</option>');
+                    select.append(option);
+                }
+                self.warehouse_names = warehouse_names;
+                self.warehouse_id_for_name = warehouse_id_for_name;
+            }
+    })(self,select,current_warehouseid);
+
+    if (! this.warehouseLoader) {
+        this.warehouseLoader = new DeferredViewAction('couchinv/warehouse-summary-byname');
+    }
+    this.warehouseLoader.enqueue(populator);
+
     this.widget[id] = widget;
     this.input[id] = select;
     return widget;
