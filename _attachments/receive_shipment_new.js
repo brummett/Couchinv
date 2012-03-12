@@ -49,7 +49,7 @@ function receive_shipment_form(doctoedit, next_action) {
             var order = {   type: 'receive',
                             ordernumber: inputs.ordernumber.val(),
                             vendorname: vendorname,
-                            vendorid: form.customer_id_for_name[vendornamae],
+                            vendorid: form.customer_id_for_name[vendorname],
                             warehouseid: inputs.shipdestination.val(),
                             date: inputs.date.val(),
                             items: inputs.itemlist,
