@@ -251,7 +251,7 @@ ItemTransactionForm.prototype.customerWidget = function(desc) {
     widget.__validate = (function(form,widget,input) {
         return function() {
             var customer_name = input.val();
-            if((customer_name == undefined) || (customer_name = '')) {
+            if((customer_name == undefined) || (customer_name == '')) {
                 this.__markError('* Required');
             } else {
                 if (! self.customer_id_for_name[customer_name]) {
