@@ -470,7 +470,11 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
 
         if (item_ident in items_in_list) {
             delete items_in_list[item_ident];
-            ul.find('li[data-item-ident="' + item_ident + '"]').remove();
+            ul.find('li[data-item-ident="' + item_ident + '"]').animate(
+                { height: '0px' },
+                { duration: 500,
+                  complete: function() { $(this).remove(); }
+                });
         }
     }
 
