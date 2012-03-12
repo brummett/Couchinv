@@ -441,6 +441,31 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
         }
     };
 
+    widget.__add_scan = function(scan, how_many) {
+        var widget = this;
+        db.view('couchinv/items-by-barcode?key="' + scan + '"',
+            { success: function(data) {
+                if (data.rows.length) {
+                    // found it by barcode
+                    widget.__add(data.rows[0].value, how_many);
+                } else {
+                    db.view('couuchinv/items-by-sku?key="' + scan + '"',
+                        { success: function(data) {
+                            if (data.rows.length) {
+                                // found it by sku
+                                widget.__add(data.rows[0].value, how_many);
+                            } else {
+                                // unknown item
+                                widget.__add(scan, how_many);
+                            }
+                        }}
+                    );
+                }
+            }}
+        );
+    };
+
+
     widget.__add = function(thing, how_many) {
         var item_ident, item_name;
         var self = this;

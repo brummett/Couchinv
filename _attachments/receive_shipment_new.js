@@ -12,26 +12,7 @@ function receive_shipment_form(doctoedit, next_action) {
 
     var itemlist;
     var scanaction = function(event, scan, form) {
-        db.view('couchinv/items-by-barcode?key="' + scan + '"',
-            { success: function(data) {
-                if (data.rows.length) {
-                    // found it by barcode
-                    form.widget.itemlist.__add(data.rows[0]);
-                } else {
-                    db.view('couuchinv/items-by-sku?key="' + scan + '"',
-                        { success: function(data) {
-                            if (data.rows.length) {
-                                // found it by sku
-                                form.widget.itemlist.__add(data.rows[0]);
-                            } else {
-                                // unknown item
-                                form.widget.itemlist.__add(scan);
-                            }
-                        }}
-                    );
-                }
-            }}
-        );
+        form.widget.itemlist.__add_scan(scan);
     };
 
     var form, submit_form_1, submit_form_2;
