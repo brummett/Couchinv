@@ -17,7 +17,7 @@ function receive_shipment_form(doctoedit, next_action) {
         }
     };
 
-    var form, submit_form_1, submit_form_2;
+    var form, submit_form_1, submit_form_2, submit_form_3;
     // When they click the 'all done' button
     submit_form_1 = function (event) {
         // clear previous errors
@@ -46,19 +46,39 @@ function receive_shipment_form(doctoedit, next_action) {
         return false;
     };
 
-    submit_form_2 = (function(next_action) {
-        return function () {
+    submit_form_2 = function() {
+        db.openDoc(form.input.shipdestination.val(), { success: submit_form_3 });
+    };
+
+    submit_form_3 = (function(next_action) {
+        return function (warehouse_doc) {
             var inputs = form.input;
             var vendorname = inputs.shiporigin.val();
+            var itemlist = inputs.itemlist;
             var order = {   type: 'receive',
                             ordernumber: inputs.ordernumber.val(),
                             vendorname: vendorname,
                             vendorid: form.customer_id_for_name[vendorname],
                             warehouseid: inputs.shipdestination.val(),
                             date: inputs.date.val(),
-                            items: inputs.itemlist,
+                            items: itemlist,
                         };
-            db.saveDoc(order,
+
+            // increment the inventory in the warehouse
+            if ('inventory' in warehouse_doc) {
+                var inventory = warehouse_doc.inventory;
+                for (var barcode in itemlist) {
+                    if (barcode in inventory) {
+                        inventory[barcode] += itemlist[barcode];
+                    } else {
+                        inventory[barcode] = itemlist[barcode];
+                    }
+                }
+            } else {
+                warehouse_doc.inventory = itemlist;
+            }
+
+            db.bulkSave({all_or_nothing: true, docs: [order, warehouse_doc]},
                 { success: function() {
                                     var popup;
                                     popup = new EditableForm({
