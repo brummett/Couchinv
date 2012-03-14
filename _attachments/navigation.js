@@ -4,7 +4,8 @@ var activities = [ { name: 'Home', url: 'index.html' },
                    { name: 'Inventory Items', url: 'inventory_items.html' },
                    { name: 'Customers', url: 'customers.html' },
                    { name: 'Warehouses', url: 'warehouses.html' },
-                   { name: 'Receive Shipment', url: 'receive_shipment.html' }
+                   { name: 'Receive Shipment', url: 'receive_shipment.html' },
+                   { name: 'Sale', url: 'sale.html' }
                 ];
 
 function navigation_run () {
