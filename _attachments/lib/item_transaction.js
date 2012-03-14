@@ -51,6 +51,9 @@ ItemTransactionForm.prototype.layoutWidgets = function() {
             case 'text':
                 widget = this.textWidget(layout);
                 break;
+            case 'select':
+                widget = this.selectWidget(layout);
+                break
             case 'customer':
                 widget = this.customerWidget(layout);
                 break;
@@ -220,6 +223,27 @@ ItemTransactionForm.prototype.warehouseWidget = function(desc) {
     this.input[id] = select;
     return widget;
 };
+
+ItemTransactionForm.prototype.selectWidget = function(desc) {
+    var id = (desc.id || desc.level);
+    var self = this;
+
+    var html = '<div class="orderwidget selectwidget"><span>'
+                + (desc.label || '') + '</span><span><select id="' + id + '">';
+    for (var i in desc.options) {
+        html += '<option value="' + desc.options[i] + '"'
+            + (desc.value == desc.options[i] ? ' selected="selected"' : '')
+            + '>' + desc.options[i] + '</option>';
+    }
+    html += '</select></span><span class="errortext"/></div>';
+    var widget = $(html);
+    var select = $('select', widget);
+
+    widget.__validate = function() { return true };
+    this.widget[id] = widget;
+    this.input[id] = select;
+    return widget;
+}
 
 ItemTransactionForm.prototype.customerWidget = function(desc) {
     var id = (desc.id || desc.label);
