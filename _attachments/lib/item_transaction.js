@@ -407,31 +407,43 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     this.widget[id] = widget;
     this.input[id] = items_in_list;
 
-    widget.__validate = (function(widget) {
-                            return function() {
-                                var popup, title, message;
-                                if (widget.__isEmpty()) {
-                                    title = 'No items';
-                                    message = 'Add some items to the order first';
+    if (include_price) {
+        widget.__price_for_item_ident = (function(widget, items_in_list) {
+            return function(item_ident) {
+                if (items_in_list[item_ident]) {
+                    return $('input.itemprice', widget).val();
+                } else {
+                    return undefined;
+                }
+            }
+        })(widget, items_in_list);
+    }
 
-                                } else if (widget.find('.unknown_item').length) {
-                                    title = 'Unknown items';
-                                    message = 'Some items are not yet known to the system';
-                                }
-                                if (title) {
-                                    widget.__markError(title);
-                                    popup = new EditableForm({
-                                        title: title,
-                                        modal: 1,
-                                        fields: [{type: 'label', label: message }],
-                                        buttons: [{id: 'ok', label: 'Ok', action: 'remove'}]
-                                    });
-                                    return false;
-                                } else {
-                                    return true;
-                                }
-                            }
-                        })(widget);
+    widget.__validate = (function(widget) {
+            return function() {
+                var popup, title, message;
+                if (widget.__isEmpty()) {
+                    title = 'No items';
+                    message = 'Add some items to the order first';
+
+                } else if (widget.find('.unknown_item').length) {
+                    title = 'Unknown items';
+                    message = 'Some items are not yet known to the system';
+                }
+                if (title) {
+                    widget.__markError(title);
+                    popup = new EditableForm({
+                        title: title,
+                        modal: 1,
+                        fields: [{type: 'label', label: message }],
+                        buttons: [{id: 'ok', label: 'Ok', action: 'remove'}]
+                    });
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        })(widget);
 
     widget.__isEmpty = function() {
         for (var k in items_in_list) {
