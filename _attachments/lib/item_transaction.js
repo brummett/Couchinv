@@ -516,6 +516,10 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
 
     widget.__add_scan = function(scan, how_many) {
         var widget = this;
+        if (items_in_list[scan]) {
+            widget.__add(scan, how_many);
+            return scan;
+        }
         db.view('couchinv/items-by-barcode?key="' + scan + '"',
             { success: function(data) {
                 if (data.rows.length) {
