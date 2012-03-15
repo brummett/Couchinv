@@ -393,11 +393,13 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     var self = this;
 
     var modifiable = desc.modifiable; // include inc/dec/remove buttons
+    var include_price = desc.include_price; // Include a text box for the user to put in a per-item price
 
     var id = (desc.id || desc.label);
     var widget = $('<div class="orderwidget itemlistwidget"><ul><lh class="itemrow">'
-                + (modifiable ? '<span/>' : '')  // column for the inc/dev/remove buttons
-                + '<span>Count</span><span>Name</span><span>Scan</span></lh></ul></div>');
+                + (modifiable ? '<span class="inc-dec-buttons"/>' : '')  // column for the inc/dev/remove buttons
+                + (include_price ? '<span class="itemprice">Unit Price</span>' : '')
+                + '<span class="count">Count</span><span>Name</span><span>Scan</span></lh></ul></div>');
 
     var ul = $('ul', widget);
     var items_in_list = {};
@@ -446,10 +448,13 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     widget.__newLine = function(item_name,item_ident,count) {
         var html = '<li class="itemrow" data-item-ident="' + item_ident + '">';
         if (modifiable) {
-             html += '<span class="buttons">'
+             html += '<span class="inc-dec-buttons">'
                  + '<a href="#" class="increment"><img src="images/up_arrow_blue.png" alt="increment"></a>'
                  + '<a href="#" class="decrement"><img src="images/down_arrow_blue.png" alt="decrement"></a>'
                  + '<a href="#" class="delete"><img src="images/delete_x_red.png" alt="remove"></a></span>';
+        }
+        if (include_price) {
+            html += '<span class="itemprice"><input type="text" class="itemprice"/></span>'
         }
         html += '<span class="count">' + count + '</span><span class="name">'
                  + item_name + '</span><span class="barcode">' + item_ident + '</span>';

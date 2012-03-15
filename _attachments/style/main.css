@@ -224,6 +224,16 @@ div.itemlistwidget ul span {
   width: 20%;
 }
 
+div.itemlistwidget ul span.inc-dec-buttons {
+  display: inline-block;
+  width: 6em; /* Should be the same width as 3 of the img below */
+}
+
+div.itemlistwidget ul span.count {
+  display: inline-block;
+  width: 6em; 
+}
+
 div.itemlistwidget ul img {
   padding-top: 0.2em;
   padding-left: 0.4em;
