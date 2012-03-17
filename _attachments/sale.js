@@ -51,20 +51,33 @@ function sale_form(doctoedit, next_action) {
     submit_form_2 = (function(next_action) {
         return function () {
             var inputs = form.input;
-            var vendorname = inputs.shiporigin.val();
-            var order = {   type: 'picklist',
-                            ordernumber: inputs.ordernumber.val(),
-                            vendorname: vendorname,
-                            vendorid: form.customer_id_for_name[vendorname],
-                            warehouseid: inputs.shipdestination.val(),
+            var customername = inputs.customername.val();
+
+            var itemlist = form.widget.itemlist;
+            var prices = {};
+            itemlist.find('li').each( function(idx) {
+                var barcode = $(this).attr('data-item-ident');
+                var price = $('input.itemprice', this).val();
+                prices[barcode] = Math.round(price * 100);  // save as cents
+            });
+
+            var shippingcharge = inputs.shippingcharge.val();
+            shippingcharge = Math.round(shippingcharge * 100);
+            var order = {   type: 'unshippedorder',
                             date: inputs.date.val(),
+                            ordernumber: inputs.ordernumber.val(),
+                            customername: customername,
+                            customerid: form.customer_id_for_name[customername],
+                            warehouseid: inputs.warehouseid.val(),
                             items: inputs.itemlist,
+                            prices_cents: prices,
+                            shippingcharge_cents: shippingcharge
                         };
             db.saveDoc(order,
                 { success: function() {
                                     var popup;
                                     popup = new EditableForm({
-                                        title: 'Created Picklist',
+                                        title: 'Saved Sales Order',
                                         modal: 1,
                                         buttons: [{ id:'ok', label: 'Ok', action: 'submit'}],
                                         submit: function(event) {
@@ -79,20 +92,18 @@ function sale_form(doctoedit, next_action) {
     })(next_action);
 
     form = new ItemTransactionForm({
-        title: (doctoedit ? 'Edit' : 'Create') + ' Picklist',
+        title: (doctoedit ? 'Edit' : 'Create New') + ' Sales Order',
         layout: [ { type: 'date', label: 'Date', id: 'date',
                     value: (doctoedit ? doctoedit.date : undefined) },
                   { type: 'text', label: 'Order number', id: 'ordernumber', required: true,
                     value: (doctoedit ? doctoedit.ordernumber : '') },
-                  { type: 'customer', label: 'Customer', id: 'customerid',
-                    value: (doctoedit ? doctoedit.customerid : '') },
+                  { type: 'customer', label: 'Customer', id: 'customername',
+                    value: (doctoedit ? doctoedit.customername : '') },
                   { type: 'warehouse', label: 'Shipped from', id: 'warehouseid',
                     value: (doctoedit ? doctoedit.warehouseid : undefined) },
                   { type: 'select', label: 'Ship service level', id: 'shipservicelevel',
                     options: ['standard','expedited','overnight'],
                     value: (doctoedit ? doctoedit.shipservicelevel : undefined) },
-                  { type: 'text', label: 'Product charge $', id: 'productcharge', required: true,
-                    value: (doctoedit ? doctoedit.productcharge : '') },
                   { type: 'text', label: 'Shipping charge $', id: 'shippingcharge', required: true,
                     value: (doctoedit ? doctoedit.shippingcharge : '') },
                   { type: 'select', label: 'Order source', id: 'ordersource',
