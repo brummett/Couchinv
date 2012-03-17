@@ -55,12 +55,26 @@ function sale_form(doctoedit, next_action) {
 
             var itemlist = form.widget.itemlist;
             var prices = {};
+            var missing_price = false;
             itemlist.find('li').each( function(idx) {
                 var barcode = $(this).attr('data-item-ident');
                 var price = $('input.itemprice', this).val();
+                if ((price == '') || (price == undefined)) {
+                    missing_price = true;
+                    return false;  // bail out
+                }
                 prices[barcode] = Math.round(price * 100);  // save as cents
             });
 
+            if (missing_price) {
+                new EditableForm({
+                        title: 'Missing Unit Price',
+                        modal: true,
+                        fields: [{ type: 'label', label: 'Some items do not have unit prices'}],
+                        buttons: [{id: 'ok', label: 'Ok', action: 'remove'}]
+                });
+                return false;
+            }
             var shippingcharge = inputs.shippingcharge.val();
             shippingcharge = Math.round(shippingcharge * 100);
             var order = {   type: 'unshippedorder',
