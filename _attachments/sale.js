@@ -83,6 +83,7 @@ function sale_form(doctoedit, next_action) {
                             customername: customername,
                             customerid: form.customer_id_for_name[customername],
                             warehouseid: inputs.warehouseid.val(),
+                            ordersource: inputs.ordersource.val(),
                             items: inputs.itemlist,
                             prices_cents: prices,
                             shippingcharge_cents: shippingcharge
