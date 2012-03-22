@@ -9,6 +9,8 @@
 //
 // inventoryadjustment (after a physical inventory) - END
 //
+// inventorytransfer (from one warehouse to another) - END
+//
 // spoiledproduct ( mark items that are expired or broken) - END
 
 // params are:
