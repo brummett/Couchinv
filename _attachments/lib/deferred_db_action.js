@@ -1,10 +1,10 @@
 // an object for queueing up actions to happen when some other thing finishes
 
-function DeferredViewAction (query) {
+function DeferredDbAction (func, query) {
     this.queue = [];
     this.working = true;
     var self = this;
-    db.view(query, { success: function(data) {
+    func.call(db, query, { success: function(data) {
         self.results = data;
         for (var i in self.queue) {
             var action = self.queue[i]
@@ -15,7 +15,7 @@ function DeferredViewAction (query) {
     }});
 }
 
-DeferredViewAction.prototype.enqueue = function(action) {
+DeferredDbAction.prototype.enqueue = function(action) {
     if(this.working) {
         this.queue.push(action);
     } else {
@@ -23,7 +23,7 @@ DeferredViewAction.prototype.enqueue = function(action) {
     }
 }
 
-DeferredViewAction.prototype.isDone = function(action) {
+DeferredDbAction.prototype.isDone = function(action) {
     return this.working;
 }
 
