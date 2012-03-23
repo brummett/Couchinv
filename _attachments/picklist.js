@@ -132,13 +132,15 @@ function build_picklist_activity() {
                         var html = '<li id="' + order.ordernumber + '"><div class="order-overview">'
                                     + (order.ordersource ? order.ordersource : '')
                                     + ' order number ' + order.ordernumber + ' on ' + order.date + '</div>'
-                                    + '<div class="name-addr">' + customer_name + '<br>'
-                                        + customer_doc.address + '</div>'
-                                    + '<div class="box-and-phone"><span>Box num: ' + order.boxid
-                                        + '</span><span>weight:</span>'
-                                        + '<br><span>invoice number</span>'
-                                        + '<br><span>phone: ' + customer_doc.phonenumber + '</span><span>'
-                                        + customer_doc.email + '</span></div>'
+                                    + '<div class="order-remainder">'
+                                        + '<div class="name-addr">' + customer_name + '<br>'
+                                            + customer_doc.address + '</div>'
+                                        + '<div class="box-and-phone"><span>Box num: ' + order.boxid
+                                            + '</span><span>weight:</span>'
+                                            + '<br><span>invoice number</span>'
+                                            + '<br><span>phone: ' + customer_doc.phonenumber + '</span><span>'
+                                            + customer_doc.email + '</span></div>'
+                                    + '</div>'
                                     + '<div class="items">' + item_count + ' items in order<ul class="order-items">';
                         for (var barcode in order.items) {
                             html += '<li><span class="count">' + order.items[barcode]
