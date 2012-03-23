@@ -86,7 +86,8 @@ function sale_form(doctoedit, next_action) {
                             ordersource: inputs.ordersource.val(),
                             items: inputs.itemlist,
                             prices_cents: prices,
-                            shippingcharge_cents: shippingcharge
+                            shippingcharge_cents: shippingcharge,
+                            shipservicelevel: inputs.shipservicelevel.val()
                         };
             db.saveDoc(order,
                 { success: function() {
