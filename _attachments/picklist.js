@@ -98,15 +98,15 @@ function build_picklist_activity() {
                     }
                 }
 
-                fill_in_item_name_for_barcode = (function() {
+                fill_in_item_details_for_barcode = (function() {
                     var item_fillers = {};
                     return function (barcode, selector) {
                         if (!item_fillers[barcode]) {
                             item_fillers[barcode] = new DeferredDbAction(db.view, 'couchinv/items-by-barcode?key="' + barcode + '"');
                         }
                         item_fillers[barcode].enqueue(function(data) {
-                                                    var span = $(selector);
-                                                    span.text(data.rows[0].value.name);
+                                                    $(selector).find('span.name').text(data.rows[0].value.name);
+                                                    $(selector).find('span.sku').text(data.rows[0].value.sku);
                                                 });
                     }
                 })();
@@ -142,19 +142,26 @@ function build_picklist_activity() {
                                             + customer_doc.email + '</span></div>'
                                     + '</div>'
                                     + '<div class="items">' + item_count + ' items in order<ul class="order-items">';
+                        var price_total_cents = 0;
                         for (var barcode in order.items) {
-                            html += '<li><span class="count">' + order.items[barcode]
-                                + '</span><span class="name"/><span class="barcode">' + barcode + '</span></li>';
-                            fill_in_item_name_for_barcode(barcode, 'li#' + order.ordernumber + ' ul.order-items span.name');
+                            var subtotal_cents = order.items[barcode] * order.prices_cents[barcode];
+                            price_total_cents += subtotal_cents;
+                            html += '<li><span class="count">(' + order.items[barcode]
+                                + ')</span><span class="sku"/><span class="price">$' + currency(subtotal_cents / 100)
+                                + '</span><span class="name"/></li>';
+                            fill_in_item_details_for_barcode(barcode, 'li#' + order.ordernumber + ' ul.order-items');
                         }
-                        html += '</ul></div></div></li>';
+                        html += '</ul></div>' + order.shipservicelevel
+                            + ' shipping $' + currency(order.shippingcharge_cents / 100)
+                            + ' Total $' + currency((price_total_cents + order.shippingcharge_cents) / 100)
+                            + '</div></li>';
                         var this_order_li = $(html);
                         this_order_li.appendTo(ul);
                     }
                 };
 
-                activity.append('<div id="fillable_orders">' + fillable_orders.length
-                            + ' orders to fill<ul id="fillable-orders"/>Orders we cannot fill yet<ul id="short-orders"/></div>');
+                activity.append('<div class="picklist">' + fillable_orders.length
+                            + ' orders to fill<ul class="orders" id="fillable-orders"/>Orders we cannot fill yet<ul class="orders" id="short-orders"/></div>');
 
 
                 var customer_getters = {};
@@ -195,6 +202,16 @@ function build_picklist_activity() {
             box_id = String.fromCharCode(box_id.charCodeAt(box_id.length-1) + 1);
         }
         return retval;
+    }
+
+    function currency(n) {
+        n = parseFloat(n);
+        if (isNaN(n)) {
+            n = '0.00';
+        } else {
+            n = n.toFixed(2);
+        }
+        return n;
     }
 
 }

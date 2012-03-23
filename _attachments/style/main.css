@@ -246,3 +246,23 @@ div.itemlistwidget ul li.unknown_item {
   background-color: #FF5050;
 }
 
+/* For the picklists */
+
+div.picklist div.name-addr {
+/*    float: left;
+    padding-right: 2em; */
+    display: inline-block;
+    vertical-align: top;
+}
+div.picklist div.box-and-phone {
+/*    float: right; */
+    display: inline-block;
+    vertical-align: top;
+}
+div.picklist ul.orders > li {
+  border-bottom: 1px solid black;
+}
+div.picklist span {
+    padding-left: 1em;
+    padding-right: 1em;
+}
