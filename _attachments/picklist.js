@@ -102,7 +102,7 @@ function build_picklist_activity() {
                     var item_fillers = {};
                     return function (barcode, selector) {
                         if (!item_fillers[barcode]) {
-                            item_fillers[barcode] = new DeferredViewAction('couchinv/items-by-barcode?key="' + barcode + '"');
+                            item_fillers[barcode] = new DeferredDbAction(db.view, 'couchinv/items-by-barcode?key="' + barcode + '"');
                         }
                         item_fillers[barcode].enqueue(function(data) {
                                                     var span = $(selector);
@@ -155,16 +155,27 @@ function build_picklist_activity() {
                             + ' orders to fill<ul id="fillable-orders"/>Orders we cannot fill yet<ul id="short-orders"/></div>');
 
 
+                var customer_getters = {};
                 for (var i in fillable_orders) {
                     var order = fillable_orders[i];
                     var appender = make_order_appender('ul#fillable-orders', order);
-                    db.openDoc(order.customerid, { success: appender });
+                    var customerid = order.customerid;
+                    if (! (customerid in customer_getters)) {
+                        customer_getters[customerid] = new DeferredDbAction(db.openDoc, customerid);
+                    }
+                    customer_getters[customerid].enqueue(appender);
+                    //db.openDoc(order.customerid, { success: appender });
                 }
 
                 for (var i in short_orders) {
                     var order = short_orders[i];
                     var appender = make_order_appender('ul#short-orders', order);
-                    db.openDoc(order.customerid, { success: appender });
+                    var customerid = order.customerid;
+                    if (! (customerid in customer_getters)) {
+                        customer_getters[customerid] = new DeferredDbAction(db.openDoc, customerid);
+                    }
+                    customer_getters[customerid].enqueue(appender);
+                    //db.openDoc(order.customerid, { success: appender });
                 }
             }
 

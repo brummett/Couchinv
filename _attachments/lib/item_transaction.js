@@ -216,7 +216,7 @@ ItemTransactionForm.prototype.warehouseWidget = function(desc) {
     })(self,select,current_warehouseid);
 
     if (! this.warehouseLoader) {
-        this.warehouseLoader = new DeferredViewAction('couchinv/warehouse-summary-byname');
+        this.warehouseLoader = new DeferredDbAction(db.view, 'couchinv/warehouse-summary-byname');
     }
     this.warehouseLoader.enqueue(populator);
 
@@ -274,7 +274,7 @@ ItemTransactionForm.prototype.customerWidget = function(desc) {
     })(self);
 
     if (! this.customerLoader) {
-        this.customerLoader = new DeferredViewAction('couchinv/customer-exists-by-any-name');
+        this.customerLoader = new DeferredDbAction(db.view, 'couchinv/customer-exists-by-any-name');
     }
     this.customerLoader.enqueue(populator);
 
