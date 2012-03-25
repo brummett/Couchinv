@@ -6,7 +6,8 @@ var activities = [ { name: 'Home', url: 'index.html' },
                    { name: 'Warehouses', url: 'warehouses.html' },
                    { name: 'Receive Shipment', url: 'receive_shipment.html' },
                    { name: 'Sale', url: 'sale.html' },
-                   { name: 'Pick List', url: 'picklist.html' }
+                   { name: 'Print Pick List', url: 'picklist.html' },
+                   { name: 'Fill Pick List', url: 'fillpicklist.html' }
 
                 ];
 
