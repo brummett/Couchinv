@@ -74,6 +74,7 @@ function build_picklist_activity() {
                 for (var barcode in order.items) { item_count++ };
 
                 order.boxid = get_next_box_id();
+                db.saveDoc(order);  // Save the Box ID
 
                 var html = '<li id="' + order.ordernumber + '"><div class="order-overview">'
                             + (order.ordersource ? order.ordersource : '')
