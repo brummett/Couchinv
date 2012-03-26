@@ -5,18 +5,16 @@ function show_picklist_order_count_by_warehouse(next_action) {
 
     var widget = $('<div/>');
 
-    db.view('couchinv/warehouse-summary-byname', { success: function(data) {
-        var warehouse_map = {};
+    db.view('couchinv/warehouse-summary-byname?include_docs=true', { success: function(data) {
+        var warehouse_doc_for_id = {};
         for (var i in data.rows) {
             var warehouseid = data.rows[i].id;
-            var name = data.rows[i].key;
-            warehouse_map[name] = warehouseid;
-            warehouse_map[warehouseid] = name;
+            warehouse_doc_for_id[warehouseid] = data.rows[i].doc;
         }
-        get_number_of_orders_by_warehouse(warehouse_map);
+        get_number_of_orders_by_warehouse(warehouse_doc_for_id);
     }});
 
-    function get_number_of_orders_by_warehouse(warehouse_map) {
+    function get_number_of_orders_by_warehouse(warehouse_doc_for_id) {
         db.view('couchinv/unshipped-order-docs-by-warehouseid-and-priority?group_level=1',
             { success: function(data) {
                 var table_html = '<table><th><td>Warehouse</td><td>Unshipped orders</td></th>';
@@ -24,8 +22,8 @@ function show_picklist_order_count_by_warehouse(next_action) {
                 for (var i in data.rows) {
                     var warehouse_id = data.rows[i].key[0];
                     var count = data.rows[i].value;
-                    table_html += '<tr><td>' + warehouse_map[warehouse_id] + '</td><td>' + count + '</td></tr>';
-                    select_html += '<option value="' + warehouse_id + '">' + warehouse_map[warehouse_id]
+                    table_html += '<tr><td>' + warehouse_doc_for_id[warehouse_id].name + '</td><td>' + count + '</td></tr>';
+                    select_html += '<option value="' + warehouse_id + '">' + warehouse_doc_for_id[warehouse_id].name
                                 + '</option>';
                 }
                 table_html += '</table>';
@@ -40,7 +38,7 @@ function show_picklist_order_count_by_warehouse(next_action) {
                 button.click((function (select) {
                                 return function(event) {
                                     event.preventDefault();
-                                    next_action(select.val());
+                                    next_action(warehouse_doc_for_id[select.val()]);
                                 }
                             })(select));
                 form.append(button);
@@ -56,6 +54,18 @@ function show_picklist_order_count_by_warehouse(next_action) {
     return widget;
 }
 
+function copy_warehouse_items(warehouse_items) {
+    var copy = {};
+    for (var barcode in warehouse_items) {
+        copy[barcode] = warehouse_items[barcode];
+    }
+    return copy;
+}
+
+function warehouse_order_is_fillable(warehouse_items, order_items) {
+    var short_items = warehouse_items_short_for_order(warehouse_items, order_items);
+    return (short_items.length() == 0);
+}
 
 function warehouse_items_short_for_order(warehouse_items, order_items) {
     var short_items = {};
