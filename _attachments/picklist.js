@@ -36,21 +36,14 @@ function build_picklist_activity() {
                 for (var i in unshipped_order_data.rows) {
                     var this_order = unshipped_order_data.rows[i].value;
 
-                    var is_fillable = true;
-                    for (var barcode in this_order.items) {
-                        if (available[barcode] < this_order.items[barcode]) {
-                            is_fillable = false;
-                            break;
-                        }
-                    }
+                    var short_items = warehouse_items_short_for_order(available, this_order.items);
 
-                    if (is_fillable) {
+                    if (short_items.length() == 0) {
                         // adjust the available for each item in this order
-                        for (var barcode in this_order.items) {
-                            available[barcode] -= this_order.items[barcode];
-                        }
+                        warehouse_commit_order_items(available, this_order.items);
                         fillable_orders.push(this_order);
                     } else {
+                        this_order.short_items = short_items;
                         short_orders.push(this_order);
                     }
                 }
@@ -104,6 +97,7 @@ function build_picklist_activity() {
                             var subtotal_cents = order.items[barcode] * order.prices_cents[barcode];
                             price_total_cents += subtotal_cents;
                             html += '<li><span class="count">(' + order.items[barcode]
+                                + ((order.short_items && order.short_items[barcode]) ? (', short ' + order.short_items[barcode]) : '' )
                                 + ')</span><span class="sku"/><span class="price">$' + currency(subtotal_cents / 100)
                                 + '</span><span class="name"/></li>';
                             fill_in_item_details_for_barcode(barcode, 'li#' + order.ordernumber + ' ul.order-items');

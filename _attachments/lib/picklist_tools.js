@@ -55,3 +55,25 @@ function show_picklist_order_count_by_warehouse(next_action) {
 
     return widget;
 }
+
+
+function warehouse_items_short_for_order(warehouse_items, order_items) {
+    var short_items = {};
+    var short_count = 0;
+    for (var barcode in order_items) {
+        if (warehouse_items[barcode] < order_items[barcode]) {
+            short_items[barcode] = order_items[barcode] - warehouse_items[barcode];
+            short_count++;
+        }
+    }
+    short_items.length = function() { return short_count };
+    return short_items;
+}
+
+function warehouse_commit_order_items(warehouse_items, order_items) {
+    for (var barcode in order_items) {
+        warehouse_items[barcode] -= order_items[barcode];
+    }
+}
+
+
