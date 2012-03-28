@@ -581,7 +581,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
 
         } else {
             items_in_list[item_ident] = how_many;
-            var new_li = $(this.__newLine(item_name, item_ident, 1));
+            var new_li = $(this.__newLine(item_name, item_ident, how_many));
             ul.append(new_li);
             if (modifiable) {
                 $('a.increment', new_li).click( function(event) {
