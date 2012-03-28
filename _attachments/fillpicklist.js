@@ -80,6 +80,30 @@ function build_fillpicklist_activity() {
             });
 
             form.draw(picklist_filler);
+            var unfilled_items = form.widget['unfilled_items'];
+            var filled_items = form.widget['filled_items'];
+
+            $.each(order.items, function(barcode, count) {
+                unfilled_items.__add_scan(barcode, count);
+            });
+
+            function make_toggle_item(this_widget, other_widget) {
+                return function (event) {
+                    var li = $(event.target).closest('li');
+                    var barcode = li.attr('data-item-ident');
+
+                    if (this_widget.__items_in_list[barcode] > 0) {
+                        this_widget.__subtract(barcode);
+                        other_widget.__add_scan(barcode);
+                        if (this_widget.__items_in_list[barcode] == 0) {
+                            this_widget.__delete(barcode);
+                        }
+                    }
+                }
+            }
+
+            unfilled_items.click(make_toggle_item(unfilled_items, filled_items));
+            filled_items.click(make_toggle_item(filled_items, unfilled_items));
         }
 
     }
