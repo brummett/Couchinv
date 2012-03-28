@@ -405,6 +405,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
 
     var ul = $('ul', widget);
     var items_in_list = {};
+    widget.__items_in_list = items_in_list;
 
     this.widget[id] = widget;
     this.input[id] = items_in_list;
