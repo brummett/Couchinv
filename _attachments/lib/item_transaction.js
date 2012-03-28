@@ -514,6 +514,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
             items_in_list[item_ident] -= how_many;
             li.children('span.count').text(items_in_list[item_ident]);
         }
+        return items_in_list[item_ident];
     };
 
     widget.__add_scan = function(scan, how_many) {
@@ -613,6 +614,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
             }
             self.__onNewLine(new_li, thing);
         }
+        return items_in_list[item_ident];
     };
 
     return widget;
