@@ -406,6 +406,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     var ul = $('ul', widget);
     var items_in_list = {};
     widget.__items_in_list = items_in_list;
+    widget.include_price = include_price;
 
     this.widget[id] = widget;
     this.input[id] = items_in_list;
@@ -501,6 +502,11 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
                 var newitem = { barcode: thing, name: '', sku: '', desc: '' };
                 itemform(newitem, function(doc) { self.__updateUnknownLine(li, doc) });
             });
+        } else if (widget.include_price) {
+            var expected_key = widget.include_price + '_cents';
+            if (thing[expected_key] != undefined) {
+                li.find('input.itemprice').val(currency(thing[expected_key]/100));
+            }
         }
     };
 
@@ -617,6 +623,16 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
         }
         return items_in_list[item_ident];
     };
+
+    function currency(n) {
+        n = parseFloat(n);
+        if (isNaN(n)) {
+            n = '0.00';
+        } else {
+            n = n.toFixed(2);
+        }
+        return n;
+    }
 
     return widget;
 };

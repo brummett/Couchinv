@@ -54,7 +54,7 @@ function sale_form(doctoedit, next_action) {
             var customername = inputs.customername.val();
 
             var itemlist = form.widget.itemlist;
-            var prices = {};
+            var prices_cents = {};
             var missing_price = false;
             itemlist.find('li').each( function(idx) {
                 var barcode = $(this).attr('data-item-ident');
@@ -63,7 +63,7 @@ function sale_form(doctoedit, next_action) {
                     missing_price = true;
                     return false;  // bail out
                 }
-                prices[barcode] = Math.round(price * 100);  // save as cents
+                prices_cents[barcode] = Math.round(price * 100);  // save as cents
             });
 
             if (missing_price) {
@@ -85,7 +85,7 @@ function sale_form(doctoedit, next_action) {
                             warehouseid: inputs.warehouseid.val(),
                             ordersource: inputs.ordersource.val(),
                             items: inputs.itemlist,
-                            prices_cents: prices,
+                            prices_cents: prices_cents,
                             shippingcharge_cents: shippingcharge,
                             shipservicelevel: inputs.shipservicelevel.val()
                         };
@@ -104,6 +104,22 @@ function sale_form(doctoedit, next_action) {
                                     });
                 }}
              );
+            // Update the 'price_cents' for any that have changes
+            var barcodes = [];
+            $.each(prices_cents, function(barcode,price_cents) {
+                barcodes.push(barcode);
+            });
+            db.view('couchinv/items-by-barcode?keys=["' + barcodes.join('","') + '"]&include_docs=true', { success: function(data) {
+                for (var row in data.rows) {
+                    var barcode = data.rows[row].key;
+                    var item_doc = data.rows[row].doc;
+                    if (item_doc.price_cents != prices_cents[barcode]) {
+                        // It's different, update this doc
+                        item_doc.price_cents = prices_cents[barcode];
+                        db.saveDoc(item_doc);
+                    }
+                }
+            }});
         }
     })(next_action);
 
@@ -127,7 +143,7 @@ function sale_form(doctoedit, next_action) {
                     value: (doctoedit ? doctoedit.ordersource : undefined) },
                   { type: 'scanbox', id: 'scan', action: scanaction },
                   { type: 'button', id: 'alldone', label: 'All Done', action: submit_form_1 },
-                  { type: 'itemlist', id: 'itemlist', modifiable: true, include_price: 'Price' }
+                  { type: 'itemlist', id: 'itemlist', modifiable: true, include_price: 'price' }
                 ]
      });
 

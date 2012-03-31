@@ -93,6 +93,27 @@ function receive_shipment_form(doctoedit, next_action) {
                                     });
                 }}
              );
+
+            // find items that have costs that were different than last time
+            var barcodes = [];
+            var costs_cents = {};
+            form.widget.itemlist.find('li').each( function(idx) {
+                var barcode = $(this).attr('data-item-ident');
+                barcodes.push(barcode);
+                var cost = Math.round($('input.itemprice', this).val() * 100);
+                costs_cents[barcode] = cost;
+            });
+            db.view('couchinv/items-by-barcode?keys=["' + barcodes.join('","') + '"]&include_docs=true', { success: function(data) {
+                for (var row in data.rows) {
+                    var barcode = data.rows[row].key;
+                    var item_doc = data.rows[row].doc;
+                    if (item_doc.cost_cents != costs_cents[barcode]) {
+                        item_doc.cost_cents = costs_cents[barcode];
+                        db.saveDoc(item_doc);
+                    }
+                }
+            }})
+
         }
     })(next_action);
 
@@ -108,7 +129,7 @@ function receive_shipment_form(doctoedit, next_action) {
                     value: (doctoedit ? doctoedit.shipdestination : undefined) },
                   { type: 'scanbox', id: 'scan', action: scanaction },
                   { type: 'button', id: 'alldone', label: 'All Done', action: submit_form_1 },
-                  { type: 'itemlist', id: 'itemlist', modifiable: true }
+                  { type: 'itemlist', id: 'itemlist', modifiable: true, include_price: 'cost' }
                 ]
      });
 
