@@ -400,7 +400,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
     var id = (desc.id || desc.label);
     var widget = $('<div class="orderwidget itemlistwidget"><ul><lh class="itemrow">'
                 + (modifiable ? '<span class="inc-dec-buttons"/>' : '')  // column for the inc/dev/remove buttons
-                + (include_price ? '<span class="itemprice">Unit Price</span>' : '')
+                + (include_price ? '<span class="itemprice">Unit ' + include_price + '</span>' : '')
                 + '<span class="count">Count</span><span>Name</span><span>Scan</span></lh></ul></div>');
 
     var ul = $('ul', widget);
@@ -469,7 +469,7 @@ ItemTransactionForm.prototype.itemlistWidget = function(desc) {
                  + '<a href="#" class="delete"><img src="images/delete_x_red.png" alt="remove"></a></span>';
         }
         if (include_price) {
-            html += '<span class="itemprice"><input type="text" class="itemprice"/></span>'
+            html += '<span class="itemprice">$<input type="text" class="itemprice"/></span>'
         }
         html += '<span class="count">' + count + '</span><span class="name">'
                  + item_name + '</span><span class="barcode">' + item_ident + '</span>';

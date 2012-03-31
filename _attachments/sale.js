@@ -127,7 +127,7 @@ function sale_form(doctoedit, next_action) {
                     value: (doctoedit ? doctoedit.ordersource : undefined) },
                   { type: 'scanbox', id: 'scan', action: scanaction },
                   { type: 'button', id: 'alldone', label: 'All Done', action: submit_form_1 },
-                  { type: 'itemlist', id: 'itemlist', modifiable: true, include_price: true }
+                  { type: 'itemlist', id: 'itemlist', modifiable: true, include_price: 'Price' }
                 ]
      });
 
