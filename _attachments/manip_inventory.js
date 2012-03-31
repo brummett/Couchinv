@@ -89,6 +89,11 @@ function itemform(doctoedit, next_action) {
                      value: (doctoedit ? doctoedit.barcode : ''),
                      validate: 'notblank'
                    },
+                   { type: 'text',
+                      label: 'cost',
+                      id: 'cost',
+                      value: (doctoedit? currency(doctoedit.cost_cents/100) : ''),
+                   },
                    { type: 'textarea',
                      label: 'Description',
                      id: 'desc',
@@ -164,8 +169,18 @@ function build_item_doc_from_form(doc,form) {
     doc.sku     = form.valueFor("sku");
     doc.barcode = form.valueFor("barcode");
     doc.desc    = form.valueFor("desc");
+    doc.cost_cents = form.valueFor('cost') * 100;
     doc.type    = 'item';
 
     return(doc);
 }
 
+function currency(n) {
+    n = parseFloat(n);
+    if (isNaN(n)) {
+        n = '0.00';
+    } else {
+        n = n.toFixed(2);
+    }
+    return n;
+}
