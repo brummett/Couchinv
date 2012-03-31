@@ -90,9 +90,14 @@ function itemform(doctoedit, next_action) {
                      validate: 'notblank'
                    },
                    { type: 'text',
-                      label: 'cost',
+                      label: 'Cost',
                       id: 'cost',
                       value: (doctoedit? currency(doctoedit.cost_cents/100) : ''),
+                   },
+                   { type: 'text',
+                      label: 'Price',
+                      id: 'price',
+                      value: (doctoedit? currency(doctoedit.price_cents/100) : ''),
                    },
                    { type: 'textarea',
                      label: 'Description',
@@ -170,6 +175,7 @@ function build_item_doc_from_form(doc,form) {
     doc.barcode = form.valueFor("barcode");
     doc.desc    = form.valueFor("desc");
     doc.cost_cents = form.valueFor('cost') * 100;
+    doc.price_cents = form.valueFor('price') * 100;
     doc.type    = 'item';
 
     return(doc);
