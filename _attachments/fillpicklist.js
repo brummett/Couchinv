@@ -47,17 +47,35 @@ function build_fillpicklist_activity() {
             ul.append(li);
         });
 
-        ul.click(fill_selected_picklist);
+        ul.click(selected_a_picklist);
 
-        function submit_form_1 () {
-        }
+        var picklist_has_changes = false;
 
-        function fill_selected_picklist(event) {
+        function selected_a_picklist(event) {
             var li = $(event.target).closest('li');
+
+            if (picklist_has_changes) {
+                var popup = new EditableForm({
+                                title: 'Unsaved Changes',
+                                modal: 1,
+                                fields:[{ type: 'label', label: 'This picklist has unsaved changes'}],
+                                buttons: [{ id: 'ok', label: 'Change picklist', action: 'submit' },
+                                          { id: 'cancel', label: "Don't change", action: 'remove'}],
+                                submit: function() { fill_selected_picklist(li) }
+                            });
+            } else {
+                fill_selected_picklist(li);
+            }
+        };
+                
+        function fill_selected_picklist(li) {
+            picklist_has_changes = false;
+
             $('li.selected').removeClass('selected');
             li.addClass('selected');
 
             var order = orders_by_id[li.attr('id')];
+
             
             var picklist_filler = $('div#picklist-filler');
             picklist_filler.empty();
@@ -93,6 +111,7 @@ function build_fillpicklist_activity() {
                     var barcode = li.attr('data-item-ident');
 
                     if (this_widget.__items_in_list[barcode] > 0) {
+                        picklist_has_changes = true;
                         this_widget.__subtract(barcode);
                         other_widget.__add_scan(barcode);
                         if (this_widget.__items_in_list[barcode] == 0) {
@@ -104,6 +123,9 @@ function build_fillpicklist_activity() {
 
             unfilled_items.click(make_toggle_item(unfilled_items, filled_items));
             filled_items.click(make_toggle_item(filled_items, unfilled_items));
+        }
+
+        function submit_form_1 () {
         }
 
     }
